@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "git-tools"
+version = "0.1.0"
+description = ""
+authors = ["Joe Lau <joe@neatleaf.com>"]
+readme = "README.md"
+packages = [{include = "git_tools"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pretty-errors = "^1.2.25"
+click = "^8.1.7"
+tabulate = "^0.9.0"
+inquirerpy = "^0.3.4"
+alive-progress = "^3.1.4"
+inquirer = "^3.2.3"
+pyfzf = "^0.3.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
