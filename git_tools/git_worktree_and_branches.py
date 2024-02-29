@@ -1,7 +1,6 @@
 import os
-import subprocess
-from git_tools.constants import NEATLEAF_DIR, WORKTREE_DIR
-from git_tools.utils import run_command
+from constants import NEATLEAF_DIR, WORKTREE_DIR
+from utils import run_command
 import pretty_errors
 from InquirerPy import inquirer, prompt 
 from InquirerPy.base.control import Choice
