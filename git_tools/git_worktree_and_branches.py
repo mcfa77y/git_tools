@@ -7,17 +7,15 @@ from InquirerPy.base.control import Choice
 
 
 
-def common_checkout_branch(branch_name):
+def common_checkout_branch(branch_name, directory):
     print("stash")
     run_command("git stash push")
-    print("fetch")
-    run_command("git fetch --prune")
     print(f"checkout {branch_name}")
     run_command(f"git checkout {branch_name}")
     print("stash pop")
     run_command("git stash pop")
-    print("dashboard it up")
-    os.chdir("dashboard")
+    print(f"{directory} it up")
+    os.chdir(directory)
     run_command("yarn")
 
 
@@ -30,10 +28,7 @@ def copy_husky_dir():
 
 
 def common_worktree_add(branch_name, directory):
-    print(f"[worktree add] fetch {NEATLEAF_DIR}")
-    os.chdir(NEATLEAF_DIR)
-    print(run_command('pwd'))
-    run_command("git fetch --prune")
+    
     print(f"[worktree add] git worktree add {WORKTREE_DIR}/{branch_name}")
     run_command(f"git worktree add {WORKTREE_DIR}/{branch_name} {branch_name}")
     os.chdir(f"{WORKTREE_DIR}/{branch_name}")
@@ -43,8 +38,6 @@ def common_worktree_add(branch_name, directory):
     os.chdir(directory)
     run_command("code .")
     run_command("yarn")
-    run_command("yarn build:config")
-
 
 def get_git_branches_as_choice_list():
    # Run the git branch command
@@ -78,15 +71,19 @@ def main():
             'name': 'directory',
             'message': "Which directory do you want to build?",
             'default': 'dashboard',
-            'choices': ['dashboard', 'fleet_management', 'other']}])
+            'choices': ['dashboard', 'fleet_management', 'devops', 'other']}])
 
     branch_name = prompt_fzf_git_branches()
-
+    directory = answers['directory']
     if answers['action'] == 'Checkout Branch':
-        common_checkout_branch(branch_name)
+        common_checkout_branch(branch_name, directory)
     elif answers['action'] == 'Add Worktree':
-        common_worktree_add(branch_name, answers['directory'])
+        common_worktree_add(branch_name, directory)
 
 
 if __name__ == "__main__":
+    print(f"[worktree add] fetch {NEATLEAF_DIR}")
+    os.chdir(NEATLEAF_DIR)
+    print(run_command('pwd'))
+    run_command("git fetch --prune")
     main()
