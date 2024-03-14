@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import click
-from InquirerPy import inquirer
+from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 import pretty_errors
 
@@ -50,8 +50,16 @@ def main(directory):
         message="Which git worktree do you want to switch to?",
         choices=worktrees).execute()
     print(f'Selected worktree: {selected_worktree}')
+
+    answers = prompt({
+            'type': 'list',
+            'name': 'directory',
+            'message': "Which directory do you want to build?",
+            'default': 'dashboard',
+            'choices': ['dashboard', 'fleet_management', 'devops', 'other']})
+
     # Change to the selected directory
-    run_command(f"echo 'cd {selected_worktree}/dashboard; yarn; ee .; cd -' | pbcopy; pbpaste")
+    run_command(f"echo 'cd {selected_worktree}/{answers['directory']}; yarn; ee .; cd -' | pbcopy; pbpaste")
     os.chdir(selected_worktree)
     
 

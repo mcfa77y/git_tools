@@ -28,7 +28,6 @@ def copy_husky_dir():
 
 
 def common_worktree_add(branch_name, directory):
-    
     print(f"[worktree add] git worktree add {WORKTREE_DIR}/{branch_name}")
     run_command(f"git worktree add {WORKTREE_DIR}/{branch_name} {branch_name}")
     os.chdir(f"{WORKTREE_DIR}/{branch_name}")
