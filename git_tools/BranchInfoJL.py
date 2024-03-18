@@ -55,7 +55,9 @@ def get_branch_info(directory: str) -> List[BranchInfoJL]:
             continue
         try:
             date_str, branch_name, author = line.split(None, 2)
-            branch_info = BranchInfoJL(name=branch_name, date_string=date_str, author=author)
+            branch_info = BranchInfoJL(name=branch_name,
+                                       date_string=date_str,
+                                       author=author)
             branch_info_list.append(branch_info)
             # print(f'Parsed: {branch_info.age} days | {branch_info.author} | {branch_info.name} ')
         except ValueError as e:

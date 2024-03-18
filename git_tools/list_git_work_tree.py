@@ -36,7 +36,8 @@ def main(directory):
         'name': 'directory',
         'message': "Which directory do you want to build?",
         'default': 'dashboard',
-        'choices': DIR_CHIOICES})
+        'choices': DIR_CHIOICES
+    })
 
     # Change to the selected directory
     os.chdir(f'{selected_worktree}/{answers["directory"]}')

@@ -41,15 +41,12 @@ def run_git_command(cmd: List[str],
         return None
 
 
-
-
 @click.command()
 @click.option(
     '--threshold_days',
     default=30,
     type=int,
-    help='Filter branches that are older than threshold days. default 30 days.'
-)
+    help='Filter branches that are older than threshold days. default 30 days.')
 @click.option('--directory',
               default='.',
               help='Directory to execute the git command in')
@@ -70,7 +67,8 @@ def get_stale_branches(threshold_days, directory):
     branch_info_filtered_list: List[BranchInfoJL] = branch_info_list.copy()
     # Filter branches based on their age
     branch_info_filtered_list = list(
-        filter(lambda branch_info: branch_info.age >= threshold_days, branch_info_filtered_list))
+        filter(lambda branch_info: branch_info.age >= threshold_days,
+               branch_info_filtered_list))
     # Filter branches based on their name
     branch_info_filtered_list = list(
         filter(lambda branch_info: filter_by_branch_name(branch_info.name),
@@ -115,8 +113,8 @@ def select_branches(branch_info_list: List[BranchInfoJL]):
     Returns:
     List[str]: A list of selected branch names.
     """
-    authors = sorted(
-        set(branch_info.author for branch_info in branch_info_list))
+    authors = sorted(set(
+        branch_info.author for branch_info in branch_info_list))
     selected_authors = inquirer.fuzzy(message='Select authors:',
                                       choices=list(authors),
                                       multiselect=True,
@@ -124,9 +122,12 @@ def select_branches(branch_info_list: List[BranchInfoJL]):
 
     branch_choices = [{
         'name':
-        f"(Age: {branch_info.age} days, {branch_info.name}, Author: {branch_info.author})",
-        'value': branch_info.name
-    } for branch_info in branch_info_list if branch_info.author in selected_authors]
+            f"(Age: {branch_info.age} days, {branch_info.name}, Author: {branch_info.author})",
+        'value':
+            branch_info.name
+    }
+                      for branch_info in branch_info_list
+                      if branch_info.author in selected_authors]
 
     selected_branches = inquirer.fuzzy(message='Select branches:',
                                        choices=branch_choices,
@@ -147,8 +148,7 @@ def delete_branches_concurrenlty(directory, branches):
                     future.result()
                     progress_bar()
                 except Exception as e:
-                    print(
-                        f"An error occurred during branch deletion: {str(e)}")
+                    print(f"An error occurred during branch deletion: {str(e)}")
 
 
 def delete_branch(branch, directory):
@@ -159,8 +159,8 @@ def delete_branch(branch, directory):
         run_git_command([
             "git", "push", "origin", "--delete", "--no-verify", new_branch_name
         ],
-            directory,
-            swollow_output=True)
+                        directory,
+                        swollow_output=True)
     else:
         # Delete the local branch
         run_git_command(["git", "branch", "-D", branch], directory)

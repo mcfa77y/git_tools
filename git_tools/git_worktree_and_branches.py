@@ -40,6 +40,7 @@ def common_worktree_add(branch_name, directory):
     run_command("code .")
     run_command("yarn")
 
+
 def get_branches_as_choice_list():
     # Run the git branch command
     branches = get_branch_info(NEATLEAF_DIR)
@@ -47,33 +48,36 @@ def get_branches_as_choice_list():
     branches.sort(key=lambda branch: branch.age, reverse=True)
     choices = []
     for branch in branches:
-        choice = Choice(value=branch.name, name=branch.name + " - " + branch.author + " - " + str(branch.age))
-        choices.append(choice) 
+        choice = Choice(value=branch.name,
+                        name=branch.name + " - " + branch.author + " - " +
+                        str(branch.age))
+        choices.append(choice)
     return choices
+
 
 def prompt_fzf_git_branches() -> str:
     choices = get_branches_as_choice_list()
     # Use inquirer to let the user select a branch
     selected_branch: str = inquirer.fuzzy(message="Select a branch",
-                            choices=choices).execute()
+                                          choices=choices).execute()
 
     return selected_branch
 
 
 def main():
-    answers = prompt([
-        {
-            'type': 'list',
-            'name': 'action',
-            'message': "What do you want to do?",
-            'default': 'Add Worktree',
-            'choices': ['Add Worktree', 'Checkout Branch']},
-            {
-            'type': 'list',
-            'name': 'directory',
-            'message': "Which directory do you want to build?",
-            'default': 'dashboard',
-            'choices': DIR_CHIOICES}])
+    answers = prompt([{
+        'type': 'list',
+        'name': 'action',
+        'message': "What do you want to do?",
+        'default': 'Add Worktree',
+        'choices': ['Add Worktree', 'Checkout Branch']
+    }, {
+        'type': 'list',
+        'name': 'directory',
+        'message': "Which directory do you want to build?",
+        'default': 'dashboard',
+        'choices': DIR_CHIOICES
+    }])
 
     branch_name = prompt_fzf_git_branches()
     directory = answers['directory']

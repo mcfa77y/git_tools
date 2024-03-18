@@ -12,12 +12,16 @@ def run_command(command):
 def list_working_trees(directory) -> List[WorkTreeJL]:
     """Return a list of working trees."""
     output = run_command(f'cd {directory} && git worktree list')
-    worktrees_jl = [WorkTreeJL(path=line.split()[0], commit_hash=line.split()[1], name=line.split()[2])
-                    for line in output.splitlines()]
+    worktrees_jl = [
+        WorkTreeJL(path=line.split()[0],
+                   commit_hash=line.split()[1],
+                   name=line.split()[2]) for line in output.splitlines()
+    ]
     # Sort worktrees by name
     worktrees_jl.sort(key=lambda worktree: worktree.name)
 
     return worktrees_jl
+
 
 def create_choices_for_worktrees(directory):
     """Get a list of current git working trees."""
