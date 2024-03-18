@@ -23,7 +23,7 @@ class BranchInfoJL:
         return (datetime.now() - self.date).days
 
 
-def get_branch_info(directory: str) -> List[BranchInfoJL]:
+def get_branch_info(directory: str, merged_to_main: bool = False) -> List[BranchInfoJL]:
     """
     Get the branch information for a given directory using git command.
 
@@ -39,10 +39,11 @@ def get_branch_info(directory: str) -> List[BranchInfoJL]:
         "git",
         "for-each-ref",
         "--sort=committerdate",
-        "--merged",
-        "main",
         "--format='%(committerdate:short) %(refname:short) %(authorname)'",
     ]
+    if merged_to_main:
+        cmd.append("--merged=main")
+    
     output = run_command(" ".join(cmd))
     if output is None:
         return []

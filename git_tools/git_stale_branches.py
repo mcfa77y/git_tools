@@ -63,7 +63,7 @@ def get_stale_branches(threshold_days, directory):
     run_git_command(["git", "fetch"], directory)
 
     # Filter branches based on the threshold date, calculate their age, and get the author
-    branch_info_list = get_branch_info(directory)
+    branch_info_list = get_branch_info(directory, merged_to_main=True)
     branch_info_filtered_list: List[BranchInfoJL] = branch_info_list.copy()
     # Filter branches based on their age
     branch_info_filtered_list = list(
