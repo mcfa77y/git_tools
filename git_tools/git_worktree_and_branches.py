@@ -1,15 +1,17 @@
 import os
-from constants import DIR_CHIOICES, NEATLEAF_DIR, WORKTREE_DIR
-from utils import run_command
+
 import pretty_errors
-from InquirerPy import inquirer, prompt 
+from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
+from BranchInfoJL import get_branch_info
+from constants import DIR_CHIOICES, NEATLEAF_DIR, WORKTREE_DIR
+from utils import run_command
 
 
 def common_checkout_branch(branch_name, directory):
     print("stash")
-    run_command("git stash push")
+    run_command("pwd; git stash push")
     print(f"checkout {branch_name}")
     run_command(f"git checkout {branch_name}")
     print("stash pop")
@@ -38,18 +40,19 @@ def common_worktree_add(branch_name, directory):
     run_command("code .")
     run_command("yarn")
 
-def get_git_branches_as_choice_list():
-   # Run the git branch command
-    branches = run_command(f'cd {NEATLEAF_DIR}; git branch -a').split('\n')
+def get_branches_as_choice_list():
+    # Run the git branch command
+    branches = get_branch_info(NEATLEAF_DIR)
+    # sort branches by youngest first
+    branches.sort(key=lambda branch: branch.age, reverse=True)
     choices = []
     for branch in branches:
-        sanitized_name =branch.strip().replace('* ', '').replace('+ ', '').replace('remotes/origin/', '')
-        choice = Choice(value=sanitized_name, name=sanitized_name)
+        choice = Choice(value=branch.name, name=branch.name + " - " + branch.author + " - " + str(branch.age))
         choices.append(choice) 
     return choices
 
 def prompt_fzf_git_branches() -> str:
-    choices = get_git_branches_as_choice_list()
+    choices = get_branches_as_choice_list()
     # Use inquirer to let the user select a branch
     selected_branch: str = inquirer.fuzzy(message="Select a branch",
                             choices=choices).execute()

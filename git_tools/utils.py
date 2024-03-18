@@ -1,6 +1,6 @@
 import subprocess
 from typing import List
-
+from InquirerPy.base.control import Choice
 from WorktreeJL import WorkTreeJL
 
 

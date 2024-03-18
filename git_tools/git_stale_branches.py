@@ -1,14 +1,13 @@
 import concurrent.futures
 import subprocess
-from datetime import datetime
-from typing import Dict, List
+from typing import List
 
 import click
 import pretty_errors
 from alive_progress import alive_bar
 from InquirerPy import inquirer
 
-from BranchInfoJL import BranchInfoJL
+from BranchInfoJL import BranchInfoJL, get_branch_info
 
 
 def run_git_command(cmd: List[str],
@@ -42,45 +41,6 @@ def run_git_command(cmd: List[str],
         return None
 
 
-def get_branch_info(directory: str) -> List[BranchInfoJL]:
-    """
-    Get the branch information for a given directory using git command.
-
-    Parameters:
-        directory (str): The directory path to get the branch information from.
-
-    Returns:
-        List[BranchInfo]: List of BranchInfo objects containing branch name, last commit date, and author.
-    """
-    # Get all local and remote branches with their last commit date, branch name, and author
-    cmd = [
-        "git",
-        "for-each-ref",
-        "--sort=committerdate",
-        "--merged",
-        "main",
-        "--format=%(committerdate:short) %(refname:short) %(authorname)",
-    ]
-    output = run_git_command(cmd, directory)
-    if output is None:
-        return []
-
-    # Parse the output and extract branch information
-
-    branch_info_list: List[BranchInfoJL] = []
-    for line in output.splitlines():
-        if not line:
-            continue
-        try:
-            date_str, branch_name, author = line.split(None, 2)
-            commit_date = datetime.strptime(date_str.strip(), '%Y-%m-%d')
-            branch_info = BranchInfoJL(branch_name, commit_date, author)
-            branch_info_list.append(branch_info)
-            print(f'Parsed: {branch_info.age} | {branch_info.author} | {branch_info.name} ')
-        except ValueError as e:
-            print(f"Error parsing line: {line}")
-            print(f'\tError: {str(e)}')
-    return branch_info_list
 
 
 @click.command()
@@ -157,7 +117,6 @@ def select_branches(branch_info_list: List[BranchInfoJL]):
     """
     authors = sorted(
         set(branch_info.author for branch_info in branch_info_list))
-    print(f'authors: {authors}, {len(branch_info_list)}')
     selected_authors = inquirer.fuzzy(message='Select authors:',
                                       choices=list(authors),
                                       multiselect=True,
@@ -185,7 +144,7 @@ def delete_branches_concurrenlty(directory, branches):
         with alive_bar(len(futures)) as progress_bar:
             for future in concurrent.futures.as_completed(futures):
                 try:
-                    result = future.result()
+                    future.result()
                     progress_bar()
                 except Exception as e:
                     print(
