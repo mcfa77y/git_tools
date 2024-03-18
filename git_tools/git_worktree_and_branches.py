@@ -1,5 +1,5 @@
 import os
-from constants import NEATLEAF_DIR, WORKTREE_DIR
+from constants import DIR_CHIOICES, NEATLEAF_DIR, WORKTREE_DIR
 from utils import run_command
 import pretty_errors
 from InquirerPy import inquirer, prompt 
@@ -70,7 +70,7 @@ def main():
             'name': 'directory',
             'message': "Which directory do you want to build?",
             'default': 'dashboard',
-            'choices': ['dashboard', 'fleet_management', 'devops', 'other']}])
+            'choices': DIR_CHIOICES}])
 
     branch_name = prompt_fzf_git_branches()
     directory = answers['directory']

@@ -7,12 +7,8 @@ from alive_progress import alive_bar
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
-from utils import list_working_trees, run_command
-
-
-def get_current_branch_of_tree(tree_path):
-    """Return the current branch of a given working tree."""
-    return run_command(f'cd {tree_path} && git rev-parse --abbrev-ref HEAD')
+from list_git_work_tree import create_choices_for_worktrees
+from utils import list_working_trees, run_command, create_choices_for_worktrees
 
 
 def remove_working_tree(tree_path):
@@ -35,19 +31,10 @@ def main(directory):
     Returns:
         None
     """
-    trees = list_working_trees(directory)
-
-    if not trees:
-        print("No working trees found!")
-        sys.exit(0)
-
-    choices = [
-        Choice(tree, get_current_branch_of_tree(tree)) for tree in trees
-    ]
-
+    workingtree_choices = create_choices_for_worktrees(directory)
     selected_trees = inquirer.checkbox(
         message="Which working trees do you want to remove?",
-        choices=choices,
+        choices=workingtree_choices,
     ).execute()
 
     if not selected_trees:

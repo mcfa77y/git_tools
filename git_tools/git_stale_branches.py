@@ -8,6 +8,8 @@ import pretty_errors
 from alive_progress import alive_bar
 from InquirerPy import inquirer
 
+from BranchInfoJL import BranchInfoJL
+
 
 def run_git_command(cmd: List[str],
                     directory: str,
@@ -40,22 +42,7 @@ def run_git_command(cmd: List[str],
         return None
 
 
-NAME = "name"
-DATE = "date"
-AGE = "age"
-AUTHOR = "author"
-
-
-class BranchInfo:
-    def __init__(self, name: str, date: datetime, author: str):
-        self.name = name
-        self.date = date
-        self.author = author
-        # calculate age of branch in days using commit date
-        self.age = (datetime.now() - date).days
-
-
-def get_branch_info(directory: str) -> List[BranchInfo]:
+def get_branch_info(directory: str) -> List[BranchInfoJL]:
     """
     Get the branch information for a given directory using git command.
 
@@ -80,14 +67,14 @@ def get_branch_info(directory: str) -> List[BranchInfo]:
 
     # Parse the output and extract branch information
 
-    branch_info_list: List[BranchInfo] = []
+    branch_info_list: List[BranchInfoJL] = []
     for line in output.splitlines():
         if not line:
             continue
         try:
             date_str, branch_name, author = line.split(None, 2)
             commit_date = datetime.strptime(date_str.strip(), '%Y-%m-%d')
-            branch_info = BranchInfo(branch_name, commit_date, author)
+            branch_info = BranchInfoJL(branch_name, commit_date, author)
             branch_info_list.append(branch_info)
             print(f'Parsed: {branch_info.age} | {branch_info.author} | {branch_info.name} ')
         except ValueError as e:
@@ -120,7 +107,7 @@ def get_stale_branches(threshold_days, directory):
 
     # Filter branches based on the threshold date, calculate their age, and get the author
     branch_info_list = get_branch_info(directory)
-    branch_info_filtered_list: List[BranchInfo] = branch_info_list.copy()
+    branch_info_filtered_list: List[BranchInfoJL] = branch_info_list.copy()
     # Filter branches based on their age
     branch_info_filtered_list = list(
         filter(lambda branch_info: branch_info.age >= threshold_days, branch_info_filtered_list))
@@ -143,13 +130,31 @@ def get_stale_branches(threshold_days, directory):
 
 
 def filter_by_branch_name(branch_name: str) -> bool:
+    """
+    Filter branches based on their name if they include "main", "release", "prod", or "tag/" then exclude them.
+
+    Parameters:
+    - branch_name (str): The name of the branch to filter.
+
+    Returns:
+    - bool: True if the branch name does not include any of the excluded branch names, False otherwise.
+    """
     # Filter branches based on their name if they include "main", "release", "prod", or "tag/" then exclude them
     exclude_branch_list = ['main', 'release', 'prod', 'tag/']
     return all(ignore_branch not in branch_name
                for ignore_branch in exclude_branch_list)
 
 
-def select_branches(branch_info_list: List[BranchInfo]):
+def select_branches(branch_info_list: List[BranchInfoJL]):
+    """
+    A function to select branches based on author information.
+
+    Parameters:
+    branch_info_list (List[BranchInfoJL]): A list of BranchInfoJL objects containing branch information.
+
+    Returns:
+    List[str]: A list of selected branch names.
+    """
     authors = sorted(
         set(branch_info.author for branch_info in branch_info_list))
     print(f'authors: {authors}, {len(branch_info_list)}')
@@ -202,7 +207,7 @@ def delete_branch(branch, directory):
         run_git_command(["git", "branch", "-D", branch], directory)
 
 
-def delete_branches(directory: str, branch_info_list: List[BranchInfo]):
+def delete_branches(directory: str, branch_info_list: List[BranchInfoJL]):
     branches = select_branches(branch_info_list)
     delete_branches_concurrenlty(directory, branches)
 

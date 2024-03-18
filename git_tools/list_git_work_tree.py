@@ -8,28 +8,8 @@ import pretty_errors
 
 import subprocess
 
-from utils import list_working_trees, run_command
-
-
-def get_git_worktrees(directory):
-    """Get a list of current git working trees."""
-    try:
-        worktrees = list_working_trees(directory)
-
-        # Sort worktrees by the URL
-        worktrees.sort(key=lambda worktree: worktree.split('/')[-1].lower(),
-                       reverse=True)
-
-        # Create choices list
-        choices = [
-            Choice(value=worktree, name=worktree.split('/')[-1])
-            for worktree in worktrees
-        ]
-
-        return choices
-    except subprocess.CalledProcessError:
-        print("Error: Failed to get git worktrees.")
-        return []
+from constants import DIR_CHIOICES
+from utils import create_choices_for_worktrees, run_command
 
 
 @click.command()
@@ -39,9 +19,9 @@ def get_git_worktrees(directory):
               type=click.Path(exists=True))
 def main(directory):
     """Main function to list git worktrees and allow selection."""
-    worktrees = get_git_worktrees(directory)
+    worktrees = create_choices_for_worktrees(directory)
 
-    if not worktrees:
+    if not worktrees or len(worktrees) == 0:
         print("No git worktrees found.")
         return
 
@@ -52,16 +32,16 @@ def main(directory):
     print(f'Selected worktree: {selected_worktree}')
 
     answers = prompt({
-            'type': 'list',
-            'name': 'directory',
-            'message': "Which directory do you want to build?",
-            'default': 'dashboard',
-            'choices': ['dashboard', 'fleet_management', 'devops', 'other']})
+        'type': 'list',
+        'name': 'directory',
+        'message': "Which directory do you want to build?",
+        'default': 'dashboard',
+        'choices': DIR_CHIOICES})
 
     # Change to the selected directory
-    run_command(f"echo 'cd {selected_worktree}/{answers['directory']}; yarn; ee .; cd -' | pbcopy; pbpaste")
-    os.chdir(selected_worktree)
-    
+    os.chdir(f'{selected_worktree}/{answers["directory"]}')
+    run_command("code .")
+    run_command("yarn")
 
 
 if __name__ == "__main__":
