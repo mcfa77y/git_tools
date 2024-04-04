@@ -4,7 +4,7 @@ import pretty_errors
 from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
-from BranchInfoJL import get_branch_info
+from BranchInfoJL import format_branch_info_names, get_branch_info
 from constants import DIR_CHIOICES, NEATLEAF_DIR, WORKTREE_DIR
 from utils import run_command
 
@@ -45,12 +45,12 @@ def get_branches_as_choice_list():
     # Run the git branch command
     branches = get_branch_info(NEATLEAF_DIR)
     # sort branches by youngest first
-    branches.sort(key=lambda branch: branch.age, reverse=True)
+    # branches.sort(key=lambda branch: branch.age, reverse=True)
+    branches.sort(key=lambda branch: branch.age_number)
     choices = []
+    format_branch_info_names(branches)
     for branch in branches:
-        choice = Choice(value=branch.name,
-                        name=branch.name + " - " + branch.author + " - " +
-                        str(branch.age))
+        choice = Choice(value=branch.name, name=branch.info)
         choices.append(choice)
     return choices
 

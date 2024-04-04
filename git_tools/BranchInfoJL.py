@@ -11,19 +11,45 @@ class BranchInfoJL:
     date: datetime = field(init=False)
     date_string: str
     author: str
+    info: str = field(init=False)
+
+    def parse(self, string: str):
+        """
+        Parse the input string to extract date, branch name, and author.
+
+        Parameters:
+            string (str): The input string containing date, branch name, and author.
+
+        Returns:
+            None
+        """
+        parts = string.split()
+        self.date_string = parts[0]
+        self.name = parts[1]
+        self.author = parts[2]
+        self.__post_init__()
 
     def __post_init__(self):
         self.name = self.name.strip()
         self.author = self.author.strip()
         self.date = datetime.strptime(self.date_string, '%Y-%m-%d')
+        self.info = f'{self.name} || {self.author} || {self.age}'
 
     @property
-    def age(self) -> int:
+    def age(self) -> str:
         """Age of branch in days"""
-        return (datetime.now() - self.date).days
+        age = (datetime.now() - self.date).days
+        return str(age) + " days old"
+
+    @property
+    def age_number(self) -> str:
+        """Age of branch in days"""
+        age = (datetime.now() - self.date).days
+        return age
 
 
-def get_branch_info(directory: str, merged_to_main: bool = False) -> List[BranchInfoJL]:
+def get_branch_info(directory: str,
+                    merged_to_main: bool = False) -> List[BranchInfoJL]:
     """
     Get the branch information for a given directory using git command.
 
@@ -43,7 +69,7 @@ def get_branch_info(directory: str, merged_to_main: bool = False) -> List[Branch
     ]
     if merged_to_main:
         cmd.append("--merged=main")
-    
+
     output = run_command(" ".join(cmd))
     if output is None:
         return []
@@ -65,3 +91,22 @@ def get_branch_info(directory: str, merged_to_main: bool = False) -> List[Branch
             print(f"Error parsing line: {line}")
             print(f'\tError: {str(e)}')
     return branch_info_list
+
+
+def format_branch_info_names(branch_infos: List[BranchInfoJL]):
+    # find the longest worktree name
+    longest_name_length = max(
+        len(branchInfo.name) for branchInfo in branch_infos)
+    longest_name_length = min(longest_name_length, 40)
+
+    longest_author_length = max(
+        len(branchInfo.author) for branchInfo in branch_infos)
+    longest_author_length = min(longest_author_length, 30)
+
+    # make all worktree names the same length
+    for branch_info in branch_infos:
+        name_short = branch_info.name.replace("origin/",
+                                              "")[0:longest_name_length]
+        branch_info.info = name_short.ljust(
+            longest_name_length) + ' || ' + branch_info.author.ljust(
+                longest_author_length) + ' || ' + branch_info.age
