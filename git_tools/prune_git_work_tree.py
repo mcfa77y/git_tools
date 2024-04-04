@@ -8,7 +8,7 @@ from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
 from list_git_work_tree import create_choices_for_worktrees
-from utils import list_working_trees, run_command, create_choices_for_worktrees
+from utils import create_choices_for_worktrees, list_working_trees, run_command
 
 
 def remove_working_tree(tree_path):

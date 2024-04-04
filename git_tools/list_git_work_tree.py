@@ -1,12 +1,8 @@
 import os
-import subprocess
 
 import click
-from InquirerPy import inquirer, prompt
-from InquirerPy.base.control import Choice
 import pretty_errors
-
-import subprocess
+from InquirerPy import inquirer, prompt
 
 from constants import DIR_CHIOICES
 from utils import create_choices_for_worktrees, run_command
