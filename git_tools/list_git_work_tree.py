@@ -4,8 +4,9 @@ import click
 import pretty_errors
 from InquirerPy import inquirer, prompt
 
+from WorktreeJL import create_choices_for_worktrees
 from constants import DIR_CHIOICES
-from utils import create_choices_for_worktrees, run_command
+from utils import run_command
 
 
 @click.command()

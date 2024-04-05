@@ -82,6 +82,8 @@ def get_branch_info(directory: str,
             continue
         try:
             date_str, branch_name, author = line.split(None, 2)
+            if "origin/" in branch_name:
+                continue
             branch_info = BranchInfoJL(name=branch_name,
                                        date_string=date_str,
                                        author=author)
