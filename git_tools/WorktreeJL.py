@@ -62,8 +62,8 @@ def list_working_trees(directory) -> List[WorkTreeJL]:
         worktree = WorkTreeJL(path='', commit_hash='', name='')
         worktree.parse(line)
         worktrees_jl.append(worktree)
-    # Sort worktrees by name
-    worktrees_jl.sort(key=lambda worktree: worktree.name)
+    # Sort worktrees by long_name
+    worktrees_jl.sort(key=lambda worktree: worktree.long_name)
 
     return worktrees_jl
 

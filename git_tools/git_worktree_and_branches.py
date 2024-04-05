@@ -5,8 +5,8 @@ from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
 from BranchInfoJL import format_branch_info_names, get_branch_info
-from constants import DIR_CHIOICES, NEATLEAF_DIR, WORKTREE_DIR
-from utils import run_command
+from constants import NEATLEAF_DIR, WORKTREE_DIR
+from utils import prompt_fzf_directory, run_command
 
 
 def common_checkout_branch(branch_name, directory):
@@ -71,16 +71,10 @@ def main():
         'message': "What do you want to do?",
         'default': 'Add Worktree',
         'choices': ['Add Worktree', 'Checkout Branch']
-    }, {
-        'type': 'list',
-        'name': 'directory',
-        'message': "Which directory do you want to build?",
-        'default': 'dashboard',
-        'choices': DIR_CHIOICES
     }])
 
+    directory = prompt_fzf_directory()
     branch_name = prompt_fzf_git_branches()
-    directory = answers['directory']
     if answers['action'] == 'Checkout Branch':
         common_checkout_branch(branch_name, directory)
     elif answers['action'] == 'Add Worktree':

@@ -4,9 +4,8 @@ import click
 import pretty_errors
 from InquirerPy import inquirer, prompt
 
+from utils import prompt_fzf_directory, run_command
 from WorktreeJL import create_choices_for_worktrees
-from constants import DIR_CHIOICES
-from utils import run_command
 
 
 @click.command()
@@ -28,16 +27,10 @@ def main(directory):
         choices=worktrees).execute()
     print(f'Selected worktree: {selected_worktree}')
 
-    answers = prompt({
-        'type': 'list',
-        'name': 'directory',
-        'message': "Which directory do you want to build?",
-        'default': 'dashboard',
-        'choices': DIR_CHIOICES
-    })
+    directory = prompt_fzf_directory()
 
     # Change to the selected directory
-    os.chdir(f'{selected_worktree}/{answers["directory"]}')
+    os.chdir(f'{selected_worktree}/{directory}')
     run_command("code .")
     run_command("yarn")
 
