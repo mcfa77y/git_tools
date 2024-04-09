@@ -1,5 +1,6 @@
 import os
 
+import click
 import pretty_errors
 from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
@@ -63,17 +64,29 @@ def prompt_fzf_git_branches() -> str:
 
     return selected_branch
 
-
-def main():
-    answers = prompt([{
-        'type': 'list',
-        'name': 'action',
-        'message': "What do you want to do?",
-        'default': 'Add Worktree',
-        'choices': ['Add Worktree', 'Checkout Branch']
-    }])
-
-    directory = prompt_fzf_directory()
+ADD_WORKTREE = "Add Worktree"
+CHECKOUT_BRANCH = "Checkout Branch"
+ACTIONS = [ADD_WORKTREE, CHECKOUT_BRANCH]
+@click.command()
+@click.option('--action', default='', help='What do you want to do?', )
+@click.option('--directory',
+              default='',
+              help='Directory to execute the git command in')
+def main(action, directory):
+    if action == '':
+        answers = prompt([{
+            'type': 'list',
+            'name': 'action',
+            'message': "What do you want to do?",
+            'default': ADD_WORKTREE,
+            'choices': ACTIONS
+        }])
+    else:
+        answers = {'action': action}
+    
+    if directory == '':
+        directory = prompt_fzf_directory()
+    
     branch_name = prompt_fzf_git_branches()
     if answers['action'] == 'Checkout Branch':
         common_checkout_branch(branch_name, directory)
@@ -84,6 +97,5 @@ def main():
 if __name__ == "__main__":
     print(f"[worktree add] fetch {NEATLEAF_DIR}")
     os.chdir(NEATLEAF_DIR)
-    print(run_command('pwd'))
     run_command("git fetch --prune")
     main()

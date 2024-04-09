@@ -7,7 +7,7 @@ from alive_progress import alive_bar
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
-from list_git_work_tree import create_choices_for_worktrees
+from git_worktree_list import create_choices_for_worktrees
 from utils import run_command
 
 

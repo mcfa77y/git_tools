@@ -82,8 +82,6 @@ def get_branch_info(directory: str,
             continue
         try:
             date_str, branch_name, author = line.split(None, 2)
-            if "origin/" in branch_name:
-                continue
             branch_info = BranchInfoJL(name=branch_name,
                                        date_string=date_str,
                                        author=author)
@@ -108,7 +106,7 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
     # make all worktree names the same length
     for branch_info in branch_infos:
         name_short = branch_info.name.replace("origin/",
-                                              "")[0:longest_name_length]
+                                              "*")[0:longest_name_length]
         branch_info.info = name_short.ljust(
             longest_name_length) + ' || ' + branch_info.author.ljust(
                 longest_author_length) + ' || ' + branch_info.age
