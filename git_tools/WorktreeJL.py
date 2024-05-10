@@ -45,6 +45,15 @@ class WorkTreeJL:
 
 
 def format_worktree_names(worktrees: List[WorkTreeJL]):
+    """
+    A function to format worktree names by making all names the same length and adding the short path.
+    
+    Parameters:
+        worktrees (List[WorkTreeJL]): A list of WorkTreeJL objects representing different worktrees.
+
+    Returns:
+        None
+    """
     # find the longest worktree name
     longest_name_length = max(len(worktree.name) for worktree in worktrees)
     # make all worktree names the same length

@@ -61,7 +61,8 @@ def get_branch_info(directory: str,
     """
     # Get all local and remote branches with their last commit date, branch name, and author
     cmd = [
-        f"cd {directory} &&",
+        f"cd {directory};",
+        "git fetch;",
         "git",
         "for-each-ref",
         "--sort=committerdate",

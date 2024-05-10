@@ -31,9 +31,10 @@ def copy_husky_dir():
 
 
 def common_worktree_add(branch_name, directory):
-    print(f"[worktree add] git worktree add {WORKTREE_DIR}/{branch_name}")
-    run_command(f"git worktree add {WORKTREE_DIR}/{branch_name} {branch_name}")
-    os.chdir(f"{WORKTREE_DIR}/{branch_name}")
+    new_worktree_dir = f"{WORKTREE_DIR}/{branch_name}"
+    print(f"[worktree add] git worktree add {new_worktree_dir}")
+    run_command(f"git worktree add {new_worktree_dir} {branch_name}")
+    os.chdir(f"{new_worktree_dir}")
     copy_husky_dir()
     print("[worktree add] copy envs")
     run_command(f"cp {NEATLEAF_DIR}/dashboard/.env dashboard")
@@ -64,9 +65,12 @@ def prompt_fzf_git_branches() -> str:
 
     return selected_branch
 
+
 ADD_WORKTREE = "Add Worktree"
 CHECKOUT_BRANCH = "Checkout Branch"
 ACTIONS = [ADD_WORKTREE, CHECKOUT_BRANCH]
+
+
 @click.command()
 @click.option('--action', default='', help='What do you want to do?', )
 @click.option('--directory',
@@ -83,10 +87,10 @@ def main(action, directory):
         }])
     else:
         answers = {'action': action}
-    
+
     if directory == '':
         directory = prompt_fzf_directory()
-    
+
     branch_name = prompt_fzf_git_branches()
     if answers['action'] == 'Checkout Branch':
         common_checkout_branch(branch_name, directory)

@@ -67,7 +67,7 @@ def get_stale_branches(threshold_days, directory):
     branch_info_filtered_list: List[BranchInfoJL] = branch_info_list.copy()
     # Filter branches based on their age
     branch_info_filtered_list = list(
-        filter(lambda branch_info: branch_info.age >= threshold_days,
+        filter(lambda branch_info: branch_info.age_number >= threshold_days,
                branch_info_filtered_list))
     # Filter branches based on their name
     branch_info_filtered_list = list(
