@@ -7,7 +7,7 @@ import pretty_errors
 from alive_progress import alive_bar
 from InquirerPy import inquirer
 
-from BranchInfoJL import BranchInfoJL, get_branch_info
+from branch_info_jl import BranchInfoJL, get_branch_info
 
 
 def run_git_command(cmd: List[str],

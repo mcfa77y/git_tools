@@ -10,9 +10,11 @@ def run_command(command):
     return subprocess.check_output(command, shell=True).decode('utf-8').strip()
 
 
-def prompt_fzf_directory() -> str:
+def prompt_fzf_directory(default_choice="") -> str:
     # Use inquirer to let the user select a branch
-    dir: str = inquirer.fuzzy(message="Select a branch",
-                              choices=DIR_CHOICES).execute()
+    directory: str = inquirer.fuzzy(message="Select a branch",
+                                    choices=DIR_CHOICES,
+                                    default=default_choice
+                                    ).execute()
 
-    return dir
+    return directory

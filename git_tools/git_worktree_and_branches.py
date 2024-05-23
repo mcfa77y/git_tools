@@ -5,7 +5,7 @@ import pretty_errors
 from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
-from BranchInfoJL import format_branch_info_names, get_branch_info
+from branch_info_jl import format_branch_info_names, get_branch_info
 from constants import NEATLEAF_DIR, WORKTREE_DIR
 from utils import prompt_fzf_directory, run_command
 
@@ -72,7 +72,11 @@ ACTIONS = [ADD_WORKTREE, CHECKOUT_BRANCH]
 
 
 @click.command()
-@click.option('--action', default='', help='What do you want to do?', )
+@click.option(
+    '--action',
+    default='',
+    help='What do you want to do?',
+)
 @click.option('--directory',
               default='',
               help='Directory to execute the git command in')
@@ -88,10 +92,11 @@ def main(action, directory):
     else:
         answers = {'action': action}
 
+    branch_name = prompt_fzf_git_branches()
+
     if directory == '':
         directory = prompt_fzf_directory()
 
-    branch_name = prompt_fzf_git_branches()
     if answers['action'] == 'Checkout Branch':
         common_checkout_branch(branch_name, directory)
     elif answers['action'] == 'Add Worktree':
