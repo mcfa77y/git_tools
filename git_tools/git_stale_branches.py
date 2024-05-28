@@ -7,7 +7,8 @@ import pretty_errors
 from alive_progress import alive_bar
 from InquirerPy import inquirer
 
-from branch_info_jl import BranchInfoJL, get_branch_info
+from branch_info_jl import (BranchInfoJL, format_branch_info_names,
+                            get_branch_info)
 
 
 def run_git_command(cmd: List[str],
@@ -44,7 +45,7 @@ def run_git_command(cmd: List[str],
 @click.command()
 @click.option(
     '--threshold_days',
-    default=30,
+    default=14,
     type=int,
     help='Filter branches that are older than threshold days. default 30 days.')
 @click.option('--directory',
@@ -120,14 +121,13 @@ def select_branches(branch_info_list: List[BranchInfoJL]):
                                       multiselect=True,
                                       default='joe').execute()
 
+    format_branch_info_names(branch_info_list)
     branch_choices = [{
-        'name':
-            f"(Age: {branch_info.age} days, {branch_info.name}, Author: {branch_info.author})",
-        'value':
-            branch_info.name
+        'name': branch_info.info,
+        'value': branch_info.name
     }
-                      for branch_info in branch_info_list
-                      if branch_info.author in selected_authors]
+        for branch_info in branch_info_list
+        if branch_info.author in selected_authors]
 
     selected_branches = inquirer.fuzzy(message='Select branches:',
                                        choices=branch_choices,
@@ -148,7 +148,8 @@ def delete_branches_concurrenlty(directory, branches):
                     future.result()
                     progress_bar()
                 except Exception as e:
-                    print(f"An error occurred during branch deletion: {str(e)}")
+                    print(
+                        f"An error occurred during branch deletion: {str(e)}")
 
 
 def delete_branch(branch, directory):
@@ -159,8 +160,8 @@ def delete_branch(branch, directory):
         run_git_command([
             "git", "push", "origin", "--delete", "--no-verify", new_branch_name
         ],
-                        directory,
-                        swollow_output=True)
+            directory,
+            swollow_output=True)
     else:
         # Delete the local branch
         run_git_command(["git", "branch", "-D", branch], directory)
