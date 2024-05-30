@@ -89,8 +89,7 @@ def get_branch_info(directory: str,
             branch_info_list.append(branch_info)
             # print(f'Parsed: {branch_info.age} days | {branch_info.author} | {branch_info.name} ')
         except ValueError as e:
-            print(f"Error parsing line: {line}")
-            print(f'\tError: {str(e)}')
+            print(f"[branch_info_jl] Error parsing line: {line} - {str(e)}")
     return branch_info_list
 
 

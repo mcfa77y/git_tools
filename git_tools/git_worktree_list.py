@@ -71,13 +71,18 @@ def update_worktree_to_directory(worktrees_choices: List[Choice]):
     # if worktree_choices is not in worktree_to_directory then add it and set it to default directory and update file
     for choice in worktrees_choices:
         if choice.value not in worktree_to_directory:
-            print(f"[worktree list] add {choice.value} to {WORK_TREE_TO_DIRECTORY_URI}")
+            print(
+                f"[worktree list] add {choice.value} to {WORK_TREE_TO_DIRECTORY_URI}")
             worktree_to_directory[choice.value] = DEFAULT_DIRECTORY
     # if worktree_to_directory is not in worktree_choices then remove it and update file
+    worketree_to_directory_keys_to_delete = []
     for worktree in worktree_to_directory:
         if worktree not in [choice.value for choice in worktrees_choices]:
-            print(f"[worktree list] remove {worktree} from {WORK_TREE_TO_DIRECTORY_URI}")
-            del worktree_to_directory[worktree]
+            print(
+                f"[worktree list] remove {worktree} from {WORK_TREE_TO_DIRECTORY_URI}")
+            worketree_to_directory_keys_to_delete.append(worktree)
+    for worktree in worketree_to_directory_keys_to_delete:
+        worktree_to_directory.pop(worktree)
     with open(WORK_TREE_TO_DIRECTORY_URI, "w", encoding="utf-8") as f:
         f.write(json.dumps(worktree_to_directory))
     return worktree_to_directory
