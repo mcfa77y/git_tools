@@ -154,10 +154,10 @@ def delete_branches_concurrenlty(directory, branches):
 
 def delete_branch(branch: BranchInfoJL, directory):
     # Check if the branch is a local branch
-    print(f'Deleting branch: {branch}')
+    print(f'Deleting branch: {branch.name}')
     if branch.is_origin:
         # Delete the remote branch
-        new_branch_name = branch.original_name
+        new_branch_name = branch.original_name.replace('origin/', '')
         run_git_command([
             "git", "push", "origin", "--delete", "--no-verify", new_branch_name
         ],
