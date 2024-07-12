@@ -1,12 +1,14 @@
 import subprocess
 
-from InquirerPy import inquirer, prompt
+from InquirerPy import inquirer
 
-from constants import DIR_CHOICES
+from constants import DEBUG, DIR_CHOICES
 
 
 def run_command(command):
     """Execute a shell command and return its output."""
+    if DEBUG:
+        print(f'{command}')
     return subprocess.check_output(command, shell=True).decode('utf-8').strip()
 
 

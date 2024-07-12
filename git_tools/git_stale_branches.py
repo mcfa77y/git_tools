@@ -3,7 +3,6 @@ import subprocess
 from typing import List
 
 import click
-import pretty_errors
 from alive_progress import alive_bar
 from InquirerPy import inquirer
 
@@ -59,6 +58,7 @@ def get_stale_branches(threshold_days, directory):
     - threshold (int): Time threshold in days.
     - directory (str): Directory to execute the git command in
     """
+    print(f'Getting stale branches older than {threshold_days} days')
 
     # Fetch the latest data about all remote branches
     run_git_command(["git", "fetch"], directory)
@@ -124,14 +124,14 @@ def select_branches(branch_info_list: List[BranchInfoJL]):
     format_branch_info_names(branch_info_list)
     branch_choices = [{
         'name': branch_info.info,
-        'value': branch_info.name
+        'value': branch_info
     }
         for branch_info in branch_info_list
         if branch_info.author in selected_authors]
 
-    selected_branches = inquirer.fuzzy(message='Select branches:',
-                                       choices=branch_choices,
-                                       multiselect=True).execute()
+    selected_branches: List[BranchInfoJL] = inquirer.fuzzy(message='Select branches:',
+                                                           choices=branch_choices,
+                                                           multiselect=True).execute()
 
     return selected_branches
 
@@ -152,11 +152,12 @@ def delete_branches_concurrenlty(directory, branches):
                         f"An error occurred during branch deletion: {str(e)}")
 
 
-def delete_branch(branch, directory):
+def delete_branch(branch: BranchInfoJL, directory):
     # Check if the branch is a local branch
-    if branch.startswith("origin/"):
+    print(f'Deleting branch: {branch}')
+    if branch.is_origin:
         # Delete the remote branch
-        new_branch_name = branch.replace("origin/", "")
+        new_branch_name = branch.original_name
         run_git_command([
             "git", "push", "origin", "--delete", "--no-verify", new_branch_name
         ],
@@ -164,7 +165,7 @@ def delete_branch(branch, directory):
             swollow_output=True)
     else:
         # Delete the local branch
-        run_git_command(["git", "branch", "-D", branch], directory)
+        run_git_command(["git", "branch", "-D", branch.name], directory)
 
 
 def delete_branches(directory: str, branch_info_list: List[BranchInfoJL]):

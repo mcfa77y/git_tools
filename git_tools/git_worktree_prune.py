@@ -1,11 +1,8 @@
-import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import click
-import pretty_errors
 from alive_progress import alive_bar
 from InquirerPy import inquirer
-from InquirerPy.base.control import Choice
 
 from git_worktree_list import create_choices_for_worktrees
 from utils import run_command

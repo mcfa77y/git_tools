@@ -5,7 +5,7 @@ NEATLEAF_DIR = '/Users/joe/Projects/faux-neatleaf'
 
 dir_options = [
     'dashboard', 'fleet_management', 'devops', 'playground/joe/create_new_user',
-    'other', 'cloud_tools', 'dashboard_api', 'data_pipeline', 'databases',
+    'hasura_tools', 'cloud_tools', 'dashboard_api', 'data_pipeline', 'databases/migrations/', 'databases',
     'devops', 'fleet/fleet_api', 'fleet/fleet_client', 'fleet/spyder_client',
     'fleet', 'fleet_management', 'landingpage', 'playground', 'shared',
     'spyder', 'spyder_api', 'playground/joe/aws_tools_v2',
@@ -15,5 +15,5 @@ dir_options = [
     'playground/joe/hasura_tools', 'playground/joe/migration_test_ground',
     'playground/joe/prune-branches', 'playground/joe/prune_branches_old'
 ]
-
+DEBUG = False
 DIR_CHOICES = [Choice(value=dir, name=dir) for dir in dir_options]

@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
+from constants import DEBUG
 from utils import run_command
 
 
@@ -12,6 +13,7 @@ class BranchInfoJL:
     date_string: str
     author: str
     info: str = field(init=False)
+    is_origin: bool = field(init=False)
 
     def parse(self, string: str):
         """
@@ -23,17 +25,26 @@ class BranchInfoJL:
         Returns:
             None
         """
-        parts = string.split()
-        self.date_string = parts[0]
-        self.name = parts[1]
-        self.author = parts[2]
-        self.__post_init__()
+        try:
+            parts = string.split()
+            self.date_string = parts[0]
+            self.name = parts[1]
+            self.author = parts[2]
+            self.__post_init__()
+        except Exception as e:
+            if DEBUG:
+                print(f'[branch_info_jl] {e} - line: {string}')
 
     def __post_init__(self):
         self.name = self.name.strip()
         self.author = self.author.strip()
         self.date = datetime.strptime(self.date_string, '%Y-%m-%d')
         self.info = f'{self.name} || {self.author} || {self.age}'
+        if self.name.startswith("origin/"):
+            self.is_origin = True
+            self.name = self.name.replace("origin/", "*")
+        else:
+            self.is_origin = False
 
     @property
     def age(self) -> str:
@@ -42,10 +53,17 @@ class BranchInfoJL:
         return str(age) + " days old"
 
     @property
-    def age_number(self) -> str:
+    def age_number(self) -> int:
         """Age of branch in days"""
         age = (datetime.now() - self.date).days
         return age
+
+    @property
+    def original_name(self) -> str:
+        if self.is_origin:
+            return self.name.replace("*", "origin/")
+        else:
+            return self.name
 
 
 def get_branch_info(directory: str,
@@ -82,14 +100,11 @@ def get_branch_info(directory: str,
         if not line:
             continue
         try:
-            date_str, branch_name, author = line.split(None, 2)
-            branch_info = BranchInfoJL(name=branch_name,
-                                       date_string=date_str,
-                                       author=author)
+            branch_info = BranchInfoJL("", "1970-01-01", "")
+            branch_info.parse(line)
             branch_info_list.append(branch_info)
-            # print(f'Parsed: {branch_info.age} days | {branch_info.author} | {branch_info.name} ')
-        except ValueError as e:
-            print(f"[branch_info_jl] Error parsing line: {line} - {str(e)}")
+        except Exception as e:
+            continue
     return branch_info_list
 
 
@@ -112,18 +127,22 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
         >>> branch_infos = [BranchInfoJL(name="origin/feature/branch1", author="John Doe", age="10 days"), BranchInfoJL(name="origin/feature/branch2", author="Jane Smith", age="20 days")]
     """
     # find the longest worktree name
+    minimum_branch_name_length = 40
     longest_name_length = max(
         len(branchInfo.name) for branchInfo in branch_infos)
-    longest_name_length = min(longest_name_length, 40)
+    longest_name_length = min(longest_name_length, minimum_branch_name_length)
 
+    minimum_author_name_length = 20
     longest_author_length = max(
         len(branchInfo.author) for branchInfo in branch_infos)
-    longest_author_length = min(longest_author_length, 30)
+    longest_author_length = min(
+        longest_author_length, minimum_author_name_length)
 
     # make all worktree names the same length
     for branch_info in branch_infos:
         name_short = branch_info.name.replace("origin/",
                                               "*")[0:longest_name_length]
+        branch_info.name = branch_info.name.removeprefix("origin/")
         branch_info.info = name_short.ljust(
             longest_name_length) + ' || ' + branch_info.author.ljust(
                 longest_author_length) + ' || ' + branch_info.age
