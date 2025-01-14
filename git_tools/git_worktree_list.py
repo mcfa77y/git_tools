@@ -3,10 +3,10 @@ import os
 from typing import List
 
 import click
-import pretty_errors
-from InquirerPy import inquirer, prompt
+from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
+from constants import DEFAULT_DIR
 from utils import prompt_fzf_directory, run_command
 from worktree_jl import create_choices_for_worktrees
 
@@ -51,14 +51,13 @@ def main(directory):
 
 
 WORK_TREE_TO_DIRECTORY_URI = "work_tree_to_directory.json"
-DEFAULT_DIRECTORY = "dashboard"
 
 
 def initialize_worktree_to_directory(worktrees_choices: List[Choice]):
     initial_worktree_to_directory = {}
     # Iterate over each of the choices and map the value to a default directory
     for choice in worktrees_choices:
-        initial_worktree_to_directory[choice.value] = DEFAULT_DIRECTORY
+        initial_worktree_to_directory[choice.value] = DEFAULT_DIR
     with open(WORK_TREE_TO_DIRECTORY_URI, "w", encoding="utf-8") as f:
         # write the dictionary as json to the file
         f.write(json.dumps(initial_worktree_to_directory))
@@ -73,7 +72,7 @@ def update_worktree_to_directory(worktrees_choices: List[Choice]):
         if choice.value not in worktree_to_directory:
             print(
                 f"[worktree list] add {choice.value} to {WORK_TREE_TO_DIRECTORY_URI}")
-            worktree_to_directory[choice.value] = DEFAULT_DIRECTORY
+            worktree_to_directory[choice.value] = DEFAULT_DIR
     # if worktree_to_directory is not in worktree_choices then remove it and update file
     worketree_to_directory_keys_to_delete = []
     for worktree in worktree_to_directory:

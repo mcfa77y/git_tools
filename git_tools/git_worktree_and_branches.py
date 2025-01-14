@@ -5,7 +5,8 @@ from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
 from branch_info_jl import format_branch_info_names, get_branch_info
-from constants import NEATLEAF_DIR, WORKTREE_DIR
+from constants import (EMPO_PROFILE, GIT_DIR, NEATLEAF_PROFILE, PROFILE,
+                       WORKTREE_DIR)
 from utils import prompt_fzf_directory, run_command
 
 
@@ -24,7 +25,7 @@ def common_checkout_branch(branch_name, directory, here_directory):
 def copy_husky_dir():
     os.makedirs(".husky/_", exist_ok=True)
     print("[worktree add] copy husky dir")
-    run_command(f"cp {NEATLEAF_DIR}/.husky/_/husky.sh .husky/_/")
+    run_command(f"cp {GIT_DIR}/.husky/_/husky.sh .husky/_/")
     # print("[worktree add] create .git dir")
     # os.makedirs(".git", exist_ok=True)
 
@@ -36,9 +37,13 @@ def common_worktree_add(branch_name, directory):
 
     run_command(f"git worktree add {new_worktree_dir} {new_branch_name}")
     os.chdir(f"{new_worktree_dir}")
-    copy_husky_dir()
-    print("[worktree add] copy envs")
-    run_command(f"cp {NEATLEAF_DIR}/dashboard/.env dashboard")
+    if NEATLEAF_PROFILE == PROFILE:
+        copy_husky_dir()
+        print("[worktree add] copy envs")
+        run_command(f"cp {GIT_DIR}/dashboard/.env dashboard")
+    if EMPO_PROFILE == PROFILE:
+        print("[worktree add] copy envs")
+        run_command(f"cp {GIT_DIR}/.env .")
     os.chdir(directory)
     run_command("code .")
     # check if there is a .yarn lock file, if so run yarn
@@ -86,7 +91,7 @@ def release_process():
     print(f'new release branch: {new_release_branch}')
 
     # get the latest tag
-    os.chdir(NEATLEAF_DIR)
+    os.chdir(GIT_DIR)
     # stash current changes with message 'pre-release changes'
     run_command(
         f"git stash push -m 'pre-release changes {new_release_branch}'")
@@ -111,7 +116,7 @@ def release_process():
 
 def get_branches_as_choice_list():
     # Run the git branch command
-    branches = get_branch_info(NEATLEAF_DIR)
+    branches = get_branch_info(GIT_DIR)
     # sort branches by youngest first
     # branches.sort(key=lambda branch: branch.age, reverse=True)
     branches.sort(key=lambda branch: branch.age_number)
@@ -136,14 +141,21 @@ def prompt_fzf_git_branches(branch_name: str = "") -> str:
 ADD_WORKTREE = "Add Worktree"
 CHECKOUT_BRANCH = "Checkout Branch"
 RELEASE_PROCESS = "Release Process"
-ACTIONS = [ADD_WORKTREE, CHECKOUT_BRANCH, RELEASE_PROCESS]
+INTERACTIVE = "Interactive"
+ACTIONS = [ADD_WORKTREE, CHECKOUT_BRANCH, RELEASE_PROCESS, INTERACTIVE]
 
 
 @click.command()
 @click.option(
     '--action',
-    default='',
+    type=click.Choice(ACTIONS),
+    default=INTERACTIVE,
     help='What do you want to do?',
+)
+@click.option(
+    '--branch_name',
+    default='',
+    help='Branch name to checkout',
 )
 @click.option('--directory',
               default='',
@@ -151,8 +163,8 @@ ACTIONS = [ADD_WORKTREE, CHECKOUT_BRANCH, RELEASE_PROCESS]
 @click.option('--here_directory',
               default='',
               help='Directory to execute the git command in')
-def main(action, directory, here_directory):
-    if action == '':
+def main(action, directory, here_directory, branch_name):
+    if action == INTERACTIVE:
         answers = prompt([{
             'type': 'list',
             'name': 'action',
@@ -164,12 +176,12 @@ def main(action, directory, here_directory):
         answers = {'action': action}
 
     if answers['action'] == CHECKOUT_BRANCH:
-        branch_name = prompt_fzf_git_branches()
+        branch_name = prompt_fzf_git_branches(branch_name=branch_name)
         if directory == '':
             directory = prompt_fzf_directory()
         common_checkout_branch(branch_name, directory, here_directory)
     elif answers['action'] == ADD_WORKTREE:
-        branch_name = prompt_fzf_git_branches()
+        branch_name = prompt_fzf_git_branches(branch_name=branch_name)
         if directory == '':
             directory = prompt_fzf_directory()
         common_worktree_add(branch_name, directory)
@@ -178,7 +190,7 @@ def main(action, directory, here_directory):
 
 
 if __name__ == "__main__":
-    print(f"[worktree add] fetch {NEATLEAF_DIR}")
-    os.chdir(NEATLEAF_DIR)
+    print(f"[worktree add] fetch {GIT_DIR}")
+    os.chdir(GIT_DIR)
     run_command("git fetch --prune")
     main()

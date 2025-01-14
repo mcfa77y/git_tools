@@ -14,7 +14,7 @@ def run_command(command):
 
 def prompt_fzf_directory(default_choice="") -> str:
     # Use inquirer to let the user select a branch
-    directory: str = inquirer.fuzzy(message="Select a branch",
+    directory: str = inquirer.fuzzy(message="Select a directory",
                                     choices=DIR_CHOICES,
                                     default=default_choice
                                     ).execute()
