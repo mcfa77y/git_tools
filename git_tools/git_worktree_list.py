@@ -1,3 +1,10 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "click",
+#     "inquirerpy",
+# ]
+# ///
 import json
 import os
 from typing import List
@@ -6,7 +13,7 @@ import click
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
-from constants import DEFAULT_DIR
+from constants import DEFAULT_DIR, PRE_BUILD_COMMANDS
 from utils import prompt_fzf_directory, run_command
 from worktree_jl import create_choices_for_worktrees
 
@@ -34,6 +41,8 @@ def main(directory):
     directory = prompt_fzf_directory(
         default_choice=worktree_to_directory[selected_worktree])
 
+    if directory == 'root':
+        directory = ''
     # update the worktree to directory mapping
     worktree_to_directory[selected_worktree] = directory
     with open(WORK_TREE_TO_DIRECTORY_URI, "w", encoding="utf-8") as f:
@@ -45,6 +54,8 @@ def main(directory):
     run_command("code .")
     # only run next command if there is a yarn.lock file present
     if os.path.exists("yarn.lock"):
+        for command in PRE_BUILD_COMMANDS:
+            run_command(command)
         run_command("yarn")
     if os.path.exists("pnpm-lock.yaml"):
         run_command("pnpm install")
@@ -71,14 +82,16 @@ def update_worktree_to_directory(worktrees_choices: List[Choice]):
     for choice in worktrees_choices:
         if choice.value not in worktree_to_directory:
             print(
-                f"[worktree list] add {choice.value} to {WORK_TREE_TO_DIRECTORY_URI}")
+                f"[worktree list] add {choice.value} to {WORK_TREE_TO_DIRECTORY_URI}"
+            )
             worktree_to_directory[choice.value] = DEFAULT_DIR
     # if worktree_to_directory is not in worktree_choices then remove it and update file
     worketree_to_directory_keys_to_delete = []
     for worktree in worktree_to_directory:
         if worktree not in [choice.value for choice in worktrees_choices]:
             print(
-                f"[worktree list] remove {worktree} from {WORK_TREE_TO_DIRECTORY_URI}")
+                f"[worktree list] remove {worktree} from {WORK_TREE_TO_DIRECTORY_URI}"
+            )
             worketree_to_directory_keys_to_delete.append(worktree)
     for worktree in worketree_to_directory_keys_to_delete:
         worktree_to_directory.pop(worktree)

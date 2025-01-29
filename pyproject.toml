@@ -1,22 +1,28 @@
-[tool.poetry]
+[tool.pdm.build]
+includes = [
+    "git_tools",
+]
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[project]
+authors = [
+    {name = "Joe Lau", email = "lau.joe.a@gmail.com"},
+]
+requires-python = "<4.0,>=3.11"
+dependencies = [
+    "pretty-errors<2.0.0,>=1.2.25",
+    "click<9.0.0,>=8.1.7",
+    "tabulate<1.0.0,>=0.9.0",
+    "inquirerpy<1.0.0,>=0.3.4",
+    "alive-progress<4.0.0,>=3.1.4",
+    "inquirer<4.0.0,>=3.2.3",
+    "pyfzf<1.0.0,>=0.3.1",
+    "ruff>=0.9.1",
+]
 name = "git-tools"
 version = "0.1.0"
 description = ""
-authors = ["Joe Lau <joe@neatleaf.com>"]
 readme = "README.md"
-packages = [{include = "git_tools"}]
-
-[tool.poetry.dependencies]
-python = "^3.11"
-pretty-errors = "^1.2.25"
-click = "^8.1.7"
-tabulate = "^0.9.0"
-inquirerpy = "^0.3.4"
-alive-progress = "^3.1.4"
-inquirer = "^3.2.3"
-pyfzf = "^0.3.1"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

@@ -31,15 +31,15 @@ class BranchInfoJL:
             self.name = parts[1]
             self.author = parts[2]
             self.__post_init__()
-        except Exception as e:
+        except IndexError as e:
             if DEBUG:
-                print(f'[branch_info_jl] {e} - line: {string}')
+                print(f"[branch_info_jl] {e} - line: {string}")
 
     def __post_init__(self):
         self.name = self.name.strip()
         self.author = self.author.strip()
-        self.date = datetime.strptime(self.date_string, '%Y-%m-%d')
-        self.info = f'{self.name} || {self.author} || {self.age}'
+        self.date = datetime.strptime(self.date_string, "%Y-%m-%d")
+        self.info = f"{self.name} || {self.author} || {self.age}"
         if self.name.startswith("origin/"):
             self.is_origin = True
             self.name = self.name.replace("origin/", "*")
@@ -66,8 +66,7 @@ class BranchInfoJL:
             return self.name
 
 
-def get_branch_info(directory: str,
-                    merged_to_main: bool = False) -> List[BranchInfoJL]:
+def get_branch_info(directory: str, merged_to_main: bool = False) -> List[BranchInfoJL]:
     """
     Get the branch information for a given directory using git command.
 
@@ -103,7 +102,7 @@ def get_branch_info(directory: str,
             branch_info = BranchInfoJL("", "1970-01-01", "")
             branch_info.parse(line)
             branch_info_list.append(branch_info)
-        except Exception as e:
+        except IndexError:
             continue
     return branch_info_list
 
@@ -128,21 +127,21 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
     """
     # find the longest worktree name
     minimum_branch_name_length = 40
-    longest_name_length = max(
-        len(branchInfo.name) for branchInfo in branch_infos)
+    longest_name_length = max(len(branchInfo.name) for branchInfo in branch_infos)
     longest_name_length = min(longest_name_length, minimum_branch_name_length)
 
     minimum_author_name_length = 20
-    longest_author_length = max(
-        len(branchInfo.author) for branchInfo in branch_infos)
-    longest_author_length = min(
-        longest_author_length, minimum_author_name_length)
+    longest_author_length = max(len(branchInfo.author) for branchInfo in branch_infos)
+    longest_author_length = min(longest_author_length, minimum_author_name_length)
 
     # make all worktree names the same length
     for branch_info in branch_infos:
-        name_short = branch_info.name.replace("origin/",
-                                              "*")[0:longest_name_length]
+        name_short = branch_info.name.replace("origin/", "*")[0:longest_name_length]
         branch_info.name = branch_info.name.removeprefix("origin/")
-        branch_info.info = name_short.ljust(
-            longest_name_length) + ' || ' + branch_info.author.ljust(
-                longest_author_length) + ' || ' + branch_info.age
+        branch_info.info = (
+            name_short.ljust(longest_name_length)
+            + " || "
+            + branch_info.author.ljust(longest_author_length)
+            + " || "
+            + branch_info.age
+        )

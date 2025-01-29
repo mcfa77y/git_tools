@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "alive-progress",
+#     "click",
+#     "inquirerpy",
+# ]
+# ///
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import click
@@ -10,14 +18,14 @@ from utils import run_command
 
 def remove_working_tree(tree_path):
     """Remove the specified working tree."""
-    run_command(f'cd {tree_path} && git worktree remove {tree_path} --force')
+    run_command(f"cd {tree_path} && git worktree remove {tree_path} --force")
     print(f"Removed working tree at '{tree_path}'!")
 
 
 @click.command()
-@click.option('--directory',
-              default='.',
-              help='Directory to execute the git command in')
+@click.option("--directory",
+              default=".",
+              help="Directory to execute the git command in")
 def main(directory):
     """
     Allows user to interactively select a working tree to remove.

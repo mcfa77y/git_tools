@@ -1,3 +1,11 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "alive-progress",
+#     "click",
+#     "inquirerpy",
+# ]
+# ///
 import concurrent.futures
 import subprocess
 from typing import List
