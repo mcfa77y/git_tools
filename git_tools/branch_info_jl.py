@@ -126,13 +126,13 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
         >>> branch_infos = [BranchInfoJL(name="origin/feature/branch1", author="John Doe", age="10 days"), BranchInfoJL(name="origin/feature/branch2", author="Jane Smith", age="20 days")]
     """
     # find the longest worktree name
-    minimum_branch_name_length = 40
+    maximum_branch_name_length = 400
     longest_name_length = max(len(branchInfo.name) for branchInfo in branch_infos)
-    longest_name_length = min(longest_name_length, minimum_branch_name_length)
+    longest_name_length = min(longest_name_length, maximum_branch_name_length)
 
-    minimum_author_name_length = 20
+    maximum_author_name_length = 20
     longest_author_length = max(len(branchInfo.author) for branchInfo in branch_infos)
-    longest_author_length = min(longest_author_length, minimum_author_name_length)
+    longest_author_length = min(longest_author_length, maximum_author_name_length)
 
     # make all worktree names the same length
     for branch_info in branch_infos:
