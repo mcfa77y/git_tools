@@ -12,7 +12,7 @@ from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
 from branch_info_jl import format_branch_info_names, get_branch_info
-from constants import EMPO_PROFILE, GIT_DIR, NEATLEAF_PROFILE, PROFILE, WORKTREE_DIR
+from constants import (BUILD_FN, GIT_DIR, WORKTREE_DIR)
 from utils import prompt_fzf_directory, run_command
 
 
@@ -23,18 +23,7 @@ def common_checkout_branch(branch_name, directory, here_directory):
     run_command(f"git switch {branch_name}")
     print("stash pop")
     run_command("git stash pop")
-    if not "root" in directory:
-        print(f"{directory} it up")
-        os.chdir(directory)
-    run_command("yarn")
-
-
-def copy_husky_dir():
-    os.makedirs(".husky/_", exist_ok=True)
-    print("[worktree add] copy husky dir")
-    run_command(f"cp {GIT_DIR}/.husky/_/husky.sh .husky/_/")
-    # print("[worktree add] create .git dir")
-    # os.makedirs(".git", exist_ok=True)
+    BUILD_FN(directory)
 
 
 def common_worktree_add(branch_name, directory):
@@ -44,26 +33,12 @@ def common_worktree_add(branch_name, directory):
     try:
         run_command(f"git worktree add {new_worktree_dir} {new_branch_name}")
     except Exception as e:
-        print(f"[worktree add] {e}")
-    os.chdir(f"{new_worktree_dir}")
-    print(f"[worktree add] copy envs GIT_DIR: {GIT_DIR}")
-    if NEATLEAF_PROFILE == PROFILE:
-        copy_husky_dir()
-        run_command(f"cp {GIT_DIR}/dashboard/.env dashboard")
-    if EMPO_PROFILE == PROFILE:
-        # copy the .env files
-        run_command(f"cp {GIT_DIR}/sources/server/.env sources/server")
-        run_command(f"cp {GIT_DIR}/sources/app/.env sources/app")
-    if "root" in directory:
-        os.chdir(new_worktree_dir)
-    else:
-        os.chdir(directory)
+        print(f"[worktree add] Exception while running git worktree add {e}")
 
-    run_command("code .")
-    # check if there is a .yarn lock file, if so run yarn
-    if os.path.exists(".yarn.lock") or os.path.exists("yarn.lock"):
-        print("[worktree add] yarn")
-        run_command("yarn")
+    if "root" in directory:
+        BUILD_FN(new_worktree_dir)
+    else:
+        BUILD_FN(directory)
     run_command("cd $HERE")
 
 
@@ -107,7 +82,8 @@ def release_process():
     # get the latest tag
     os.chdir(GIT_DIR)
     # stash current changes with message 'pre-release changes'
-    run_command(f"git stash push -m 'pre-release changes {new_release_branch}'")
+    run_command(
+        f"git stash push -m 'pre-release changes {new_release_branch}'")
     #  switch main
     run_command("git switch main")
     # pull latest changes
@@ -119,7 +95,8 @@ def release_process():
     #  push branch to origin
     run_command(f"git push origin {new_release_branch} --no-verify")
     # add the new tag
-    run_command(f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
+    run_command(
+        f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
     # push the new tag
     run_command(f"git push origin {new_tag} --no-verify")
     # switch back to the main branch

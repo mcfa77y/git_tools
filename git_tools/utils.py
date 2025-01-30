@@ -2,7 +2,7 @@ import subprocess
 
 from InquirerPy import inquirer
 
-from constants import DEBUG, DIR_CHOICES
+from constants import DEBUG, DIR_CHOICES, ROOT_DIR_CHOICE
 
 
 def run_command(command):
@@ -17,5 +17,8 @@ def prompt_fzf_directory(default_choice="") -> str:
     directory: str = inquirer.fuzzy(
         message="Select a directory", choices=DIR_CHOICES, default=default_choice
     ).execute()
+
+    if directory == ROOT_DIR_CHOICE:
+        directory = ''
 
     return directory
