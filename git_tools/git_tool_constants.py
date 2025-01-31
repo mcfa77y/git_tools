@@ -1,64 +1,14 @@
-import os
+
+from typing import Callable
 
 from InquirerPy.base.control import Choice
 
-from utils import run_command
+from build_fn import empo_build_function, neatleaf_build
 
 NEATLEAF_PROFILE = "NEATLEAF"
 EMPO_PROFILE = "EMPO"
 
 PROFILE_NAME = EMPO_PROFILE
-
-
-def default_build_function(directory: str):
-    # Change to the selected directory
-    os.chdir(directory)
-    run_command("code .")
-    # only run next command if there is a yarn.lock file present
-    if os.path.exists("yarn.lock"):
-        run_command("yarn")
-        return
-    if os.path.exists("pnpm-lock.yaml"):
-        run_command("pnpm install")
-        return
-    if os.path.exists("package-lock.json"):
-        run_command("npm install")
-        return
-    if os.path.exists("bun.lock") or os.path.exists("bun.lockb"):
-        run_command("bun install")
-        return
-
-
-def copy_husky_dir():
-    os.makedirs(".husky/_", exist_ok=True)
-    print("[worktree add] copy husky dir")
-    run_command(f"cp {GIT_DIR}/.husky/_/husky.sh .husky/_/")
-    # print("[worktree add] create .git dir")
-    # os.makedirs(".git", exist_ok=True)
-
-
-def neatleaf_build(directory: str):
-    copy_husky_dir()
-    run_command(f"cp {GIT_DIR}/dashboard/.env dashboard")
-    default_build_function(directory)
-
-
-def empo_build(directory: str):
-    os.chdir(directory)
-    if not os.path.exists("yarn.lock"):
-        print("[constants] empo_build] no yarn.lock")
-        return
-
-    commands = [
-        "code .",
-        f"cp {GIT_DIR}/sources/server/.env sources/server",
-        f"cp {GIT_DIR}/sources/app/.env sources/app"
-        "corepack enable",
-        "echo 'node: $(node --version) \nyarn: $(yarn --version)'"
-        "empo_install"
-    ]
-    for command in commands:
-        run_command(command)
 
 
 CONSTANTS_MAP = {
@@ -101,25 +51,24 @@ CONSTANTS_MAP = {
             "playground/joe/prune_branches_old",
         ],
         "DEFAULT_DIR": "dashboard",
-        "BUILD_FN": default_build_function,
+        "BUILD_FN": neatleaf_build,
     },
     EMPO_PROFILE: {
         "GIT_DIR": "/Users/joe/Projects/empo_health/remote-health-link",
         "WORKTREE_DIR": "/Users/joe/Projects/empo_health/empo-worktrees",
         "DIR_OPTIONS": ["root", "sources/server", "sources/app"],
         "DEFAULT_DIR": "root",
-        "BUILD_FN": empo_build
+        "BUILD_FN": empo_build_function
     },
 }
 
-ROOT_DIR_CHOICE = "root"
+ROOT_DIR = "root"
 
 PROFILE = CONSTANTS_MAP[PROFILE_NAME]
 WORKTREE_DIR = PROFILE["WORKTREE_DIR"]
 GIT_DIR = PROFILE["GIT_DIR"]
 DIR_OPTIONS = PROFILE["DIR_OPTIONS"]
-BUILD_FN = PROFILE["BUILD_FN"]
-
-DEFAULT_DIR = PROFILE["DEFAULT_DIR"]
-DEBUG = False
+BUILD_FN: Callable[[str, str], None] = PROFILE["BUILD_FN"]
+PROFILE_DEFAULT_DIR = PROFILE["DEFAULT_DIR"]
+IS_VERBOSE = False
 DIR_CHOICES = [Choice(value=dir, name=dir) for dir in DIR_OPTIONS]

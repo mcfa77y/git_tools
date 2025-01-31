@@ -13,7 +13,8 @@ import click
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
-from constants import BUILD_FN, DEFAULT_DIR
+from git_tool_constants import (BUILD_FN, DIR_CHOICES, PROFILE_DEFAULT_DIR,
+                                ROOT_DIR)
 from utils import prompt_fzf_directory
 from worktree_jl import create_choices_for_worktrees
 
@@ -39,7 +40,7 @@ def main(directory):
     print(f'Selected worktree: {selected_worktree}')
 
     directory = prompt_fzf_directory(
-        default_choice=worktree_to_directory[selected_worktree])
+        default_choice=worktree_to_directory[selected_worktree], dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
 
     # update the worktree to directory mapping
     worktree_to_directory[selected_worktree] = directory
@@ -58,7 +59,7 @@ def initialize_worktree_to_directory(worktrees_choices: List[Choice]):
     initial_worktree_to_directory = {}
     # Iterate over each of the choices and map the value to a default directory
     for choice in worktrees_choices:
-        initial_worktree_to_directory[choice.value] = DEFAULT_DIR
+        initial_worktree_to_directory[choice.value] = PROFILE_DEFAULT_DIR
     with open(WORKTREE_TO_DIRECTORY_URI, "w", encoding="utf-8") as f:
         # write the dictionary as json to the file
         f.write(json.dumps(initial_worktree_to_directory))
@@ -75,7 +76,7 @@ def update_worktree_to_directory(worktrees_choices: List[Choice]):
                 f"[worktree list] add {choice.value} to {
                     WORKTREE_TO_DIRECTORY_URI}"
             )
-            worktree_to_directory[choice.value] = DEFAULT_DIR
+            worktree_to_directory[choice.value] = PROFILE_DEFAULT_DIR
     # if worktree_to_directory is not in worktree_choices then remove it and update file
     worketree_to_directory_keys_to_delete = []
     for worktree in worktree_to_directory:

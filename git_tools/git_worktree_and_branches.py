@@ -12,7 +12,8 @@ from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
 from branch_info_jl import format_branch_info_names, get_branch_info
-from constants import (BUILD_FN, GIT_DIR, WORKTREE_DIR)
+from git_tool_constants import (BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR,
+                                WORKTREE_DIR)
 from utils import prompt_fzf_directory, run_command
 
 
@@ -23,23 +24,26 @@ def common_checkout_branch(branch_name, directory, here_directory):
     run_command(f"git switch {branch_name}")
     print("stash pop")
     run_command("git stash pop")
-    BUILD_FN(directory)
+    BUILD_FN(directory, git_dir=GIT_DIR)
 
 
 def common_worktree_add(branch_name, directory):
     new_branch_name = branch_name.replace("*", "")
     new_worktree_dir = f"{WORKTREE_DIR}/{new_branch_name}"
     print(f"[worktree add] git worktree add {new_worktree_dir}")
+    if os.path.exists(new_worktree_dir):
+        print("[worktree add] worktree already exists")
+        BUILD_FN(new_worktree_dir, git_dir=GIT_DIR)
+        return
     try:
         run_command(f"git worktree add {new_worktree_dir} {new_branch_name}")
     except Exception as e:
         print(f"[worktree add] Exception while running git worktree add {e}")
 
     if "root" in directory:
-        BUILD_FN(new_worktree_dir)
+        BUILD_FN(directory, git_dir=GIT_DIR)
     else:
-        BUILD_FN(directory)
-    run_command("cd $HERE")
+        BUILD_FN(new_worktree_dir, git_dir=GIT_DIR)
 
 
 def update_version(version_string, update_type):
@@ -168,12 +172,14 @@ def main(action, directory, here_directory, branch_name):
     if answers["action"] == CHECKOUT_BRANCH:
         branch_name = prompt_fzf_git_branches(branch_name=branch_name)
         if directory == "":
-            directory = prompt_fzf_directory()
+            directory = prompt_fzf_directory(
+                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_checkout_branch(branch_name, directory, here_directory)
     elif answers["action"] == ADD_WORKTREE:
         branch_name = prompt_fzf_git_branches(branch_name=branch_name)
         if directory == "":
-            directory = prompt_fzf_directory()
+            directory = prompt_fzf_directory(
+                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_worktree_add(branch_name, directory)
     elif answers["action"] == RELEASE_PROCESS:
         release_process()

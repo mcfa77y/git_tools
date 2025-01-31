@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List
 
-from constants import DEBUG
+from git_tool_constants import IS_VERBOSE
 from utils import run_command
 
 
@@ -32,7 +32,7 @@ class BranchInfoJL:
             self.author = parts[2]
             self.__post_init__()
         except IndexError as e:
-            if DEBUG:
+            if IS_VERBOSE:
                 print(f"[branch_info_jl] {e} - line: {string}")
 
     def __post_init__(self):
@@ -127,16 +127,20 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
     """
     # find the longest worktree name
     maximum_branch_name_length = 400
-    longest_name_length = max(len(branchInfo.name) for branchInfo in branch_infos)
+    longest_name_length = max(len(branchInfo.name)
+                              for branchInfo in branch_infos)
     longest_name_length = min(longest_name_length, maximum_branch_name_length)
 
     maximum_author_name_length = 20
-    longest_author_length = max(len(branchInfo.author) for branchInfo in branch_infos)
-    longest_author_length = min(longest_author_length, maximum_author_name_length)
+    longest_author_length = max(len(branchInfo.author)
+                                for branchInfo in branch_infos)
+    longest_author_length = min(
+        longest_author_length, maximum_author_name_length)
 
     # make all worktree names the same length
     for branch_info in branch_infos:
-        name_short = branch_info.name.replace("origin/", "*")[0:longest_name_length]
+        name_short = branch_info.name.replace(
+            "origin/", "*")[0:longest_name_length]
         branch_info.name = branch_info.name.removeprefix("origin/")
         branch_info.info = (
             name_short.ljust(longest_name_length)

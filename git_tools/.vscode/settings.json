@@ -1,6 +1,5 @@
 {
   "python.languageServer": "Pylance",
-  "python.linting.pylintEnabled": false,
   "python.analysis.diagnosticSeverityOverrides": {
     "reportMissingModuleSource": "none"
   },
@@ -10,5 +9,9 @@
     "/Users/joe/Library/Application Support/Code/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20231128/adafruit-circuitpython-bundle-py-20231128/lib"
   ],
   "circuitpython.board.version": null,
-  "workbench.colorTheme": "Solarized Dark"
+  "workbench.colorTheme": "Solarized Dark",
+  "pylint.args": [
+    "--max-line-length=120",
+    "--disable=C0111"
+  ]
 }
