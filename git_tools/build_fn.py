@@ -40,16 +40,16 @@ def neatleaf_build(directory: str, git_dir: str):
 
 
 def empo_build_function(directory: str, git_dir: str):
-    print("=" * 40)
+    print("=" * 40, "empo_build", "=" * 40)
     print(os.getcwd(), directory)
-    print("=" * 40)
+    print("=" * 99)
     os.chdir(directory)
     if not os.path.exists("yarn.lock"):
         print("[build_fn] empo_build] no yarn.lock")
         return
 
     commands = [
-        "code .;",
+        "windsurf .;",
         "echo 'copying envs';",
         f"cp {git_dir}/sources/server/.env {directory}/sources/server;",
         f"cp {git_dir}/sources/app/.env {directory}/sources/app;"
