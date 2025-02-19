@@ -27,6 +27,7 @@ from worktree_jl import create_choices_for_worktrees
     type=click.Path(exists=True),
 )
 def main(directory):
+    print(f'[worktree list] directory: {directory}')
     """Main function to list git worktrees and allow selection."""
     worktrees_choices = create_choices_for_worktrees(directory)
 
