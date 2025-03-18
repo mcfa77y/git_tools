@@ -21,6 +21,7 @@ dependencies = [
     "inquirer<4.0.0,>=3.2.3",
     "pyfzf<1.0.0,>=0.3.1",
     "ruff>=0.9.1",
+    "loguru>=0.7.3",
 ]
 name = "git-tools"
 version = "0.1.0"

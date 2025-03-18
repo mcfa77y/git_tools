@@ -2,10 +2,12 @@
 # requires-python = ">=3.13"
 # dependencies = [
 #     "click",
+#     "loguru",
 #     "InquirerPy"
 # ]
 # ///
 import os
+from logger.logger import Logger
 
 import click
 from InquirerPy import inquirer, prompt
@@ -16,13 +18,14 @@ from git_tool_constants import (BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR,
                                 WORKTREE_DIR)
 from utils import prompt_fzf_directory, run_command
 
+logger = Logger("git_worktree_and_branches").logger
 
 def common_checkout_branch(branch_name, directory, here_directory):
-    print(f"stash {here_directory}")
+    logger.info(f"stash {here_directory}")
     run_command(f"cd {here_directory}; git stash push")
-    print(f"switch {branch_name}")
+    logger.info(f"switch {branch_name}")
     run_command(f"git switch {branch_name}")
-    print("stash pop")
+    logger.info("stash pop")
     run_command("git stash pop")
     BUILD_FN(directory, git_dir=GIT_DIR)
 
@@ -30,15 +33,15 @@ def common_checkout_branch(branch_name, directory, here_directory):
 def common_worktree_add(branch_name, directory):
     new_branch_name = branch_name.replace("*", "")
     new_worktree_dir = f"{WORKTREE_DIR}/{new_branch_name}"
-    print(f"[worktree add] git worktree add {new_worktree_dir}")
+    logger.info(f"[worktree add] git worktree add {new_worktree_dir}")
     if os.path.exists(new_worktree_dir):
-        print("[worktree add] worktree already exists")
+        logger.info("[worktree add] worktree already exists")
         BUILD_FN(new_worktree_dir, git_dir=GIT_DIR)
         return
     try:
         run_command(f"git worktree add {new_worktree_dir} {new_branch_name}")
     except Exception as e:
-        print(f"[worktree add] Exception while running git worktree add {e}")
+        logger.error(f"[worktree add] Exception while running git worktree add {e}")
 
     if "root" in directory:
         BUILD_FN(directory, git_dir=GIT_DIR)
@@ -58,7 +61,7 @@ def update_version(version_string, update_type):
         components[1] = str(int(components[1]) + 1)
     elif update_type == "patch":
         components[2] = str(int(components[2]) + 1)
-    print(f"components: {components}")
+    logger.info(f"components: {components}")
     new_version = ".".join(components)
     new_version = f"{version_string.split('-')[0]}-{new_version}"
     return new_version.split("/")[1]
@@ -67,21 +70,21 @@ def update_version(version_string, update_type):
 def release_process():
     # choose a prod branch for which to create a release
     tag_name = prompt_fzf_git_branches("release/")
-    print(f"release branch: {tag_name}")
+    logger.info(f"release branch: {tag_name}")
     # prompt user for version type major, minor, patchj
     version_type = inquirer.fuzzy(
         message="What version type do you want to release?",
         choices=["major", "minor", "patch"],
         default="minor",
     ).execute()
-    print(f"version type: {version_type}")
+    logger.info(f"version type: {version_type}")
 
     updated_version = update_version(tag_name, version_type)
-    print(f"new version: {updated_version}")
+    logger.info(f"new version: {updated_version}")
     new_tag = f"tag/{updated_version}"
-    print(f"new tag: {new_tag}")
+    logger.info(f"new tag: {new_tag}")
     new_release_branch = f"release/{updated_version}"
-    print(f"new release branch: {new_release_branch}")
+    logger.info(f"new release branch: {new_release_branch}")
 
     # get the latest tag
     os.chdir(GIT_DIR)
@@ -186,7 +189,7 @@ def main(action, directory, here_directory, branch_name):
 
 
 if __name__ == "__main__":
-    print(f"[worktree add] fetch {GIT_DIR}")
+    logger.info(f"[worktree add] fetch {GIT_DIR}")
     os.chdir(GIT_DIR)
     run_command("git fetch --prune")
     main()
