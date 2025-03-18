@@ -3,6 +3,7 @@
 # dependencies = [
 #     "click",
 #     "inquirerpy",
+#     "loguru",
 # ]
 # ///
 import json
@@ -13,8 +14,13 @@ import click
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 
-from git_tool_constants import (BUILD_FN, DIR_CHOICES, GIT_DIR,
-                                PROFILE_DEFAULT_DIR, ROOT_DIR)
+from git_tool_constants import (
+    BUILD_FN,
+    DIR_CHOICES,
+    GIT_DIR,
+    PROFILE_DEFAULT_DIR,
+    ROOT_DIR,
+)
 from utils import prompt_fzf_directory
 from worktree_jl import create_choices_for_worktrees
 
@@ -27,7 +33,7 @@ from worktree_jl import create_choices_for_worktrees
     type=click.Path(exists=True),
 )
 def main(directory):
-    print(f'[worktree list] directory: {directory}')
+    print(f"[worktree list] directory: {directory}")
     """Main function to list git worktrees and allow selection."""
     worktrees_choices = create_choices_for_worktrees(directory)
 
@@ -79,15 +85,13 @@ def update_worktree_to_directory(worktrees_choices: List[Choice]):
     # if worktree_choices is not in worktree_to_directory then add it and set it to default directory and update file
     for choice in worktrees_choices:
         if choice.value not in worktree_to_directory:
-            print(
-                f"[worktree list] add {choice.value} to {WORKTREE_TO_DIRECTORY_URI}")
+            print(f"[worktree list] add {choice.value} to {WORKTREE_TO_DIRECTORY_URI}")
             worktree_to_directory[choice.value] = PROFILE_DEFAULT_DIR
     # if worktree_to_directory is not in worktree_choices then remove it and update file
     worketree_to_directory_keys_to_delete = []
     for worktree in worktree_to_directory:
         if worktree not in [choice.value for choice in worktrees_choices]:
-            print(
-                f"[worktree list] remove {worktree} from {WORKTREE_TO_DIRECTORY_URI}")
+            print(f"[worktree list] remove {worktree} from {WORKTREE_TO_DIRECTORY_URI}")
             worketree_to_directory_keys_to_delete.append(worktree)
     for worktree in worketree_to_directory_keys_to_delete:
         worktree_to_directory.pop(worktree)
@@ -100,8 +104,7 @@ def get_worktree_to_directory(worktrees_choices: List[Choice]):
     # Create a json file if it does not exist for saving the preference of a directory to a worktree
     if not os.path.exists(WORKTREE_TO_DIRECTORY_URI):
         print(f"[worktree list] create {WORKTREE_TO_DIRECTORY_URI}")
-        worktree_to_directory = initialize_worktree_to_directory(
-            worktrees_choices)
+        worktree_to_directory = initialize_worktree_to_directory(worktrees_choices)
     else:
         print(f"[worktree list] read {WORKTREE_TO_DIRECTORY_URI}")
         worktree_to_directory = update_worktree_to_directory(

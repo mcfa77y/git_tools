@@ -1,4 +1,3 @@
-
 from typing import Callable
 
 from InquirerPy.base.control import Choice
@@ -56,9 +55,9 @@ CONSTANTS_MAP = {
     EMPO_PROFILE: {
         "GIT_DIR": "/Users/joe/Projects/empo_health/remote-health-link",
         "WORKTREE_DIR": "/Users/joe/Projects/empo_health/empo-worktrees",
-        "DIR_OPTIONS": ["root", "sources/server", "sources/app"],
+        "DIR_OPTIONS": ["root"],
         "DEFAULT_DIR": "root",
-        "BUILD_FN": empo_build_function
+        "BUILD_FN": empo_build_function,
     },
 }
 

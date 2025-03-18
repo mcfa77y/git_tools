@@ -7,18 +7,18 @@
 # ]
 # ///
 import os
-from logger.logger import Logger
 
 import click
 from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
 from branch_info_jl import format_branch_info_names, get_branch_info
-from git_tool_constants import (BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR,
-                                WORKTREE_DIR)
+from git_tool_constants import BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR, WORKTREE_DIR
 from utils import prompt_fzf_directory, run_command
+from logger.logger import Logger
 
 logger = Logger("git_worktree_and_branches").logger
+
 
 def common_checkout_branch(branch_name, directory, here_directory):
     logger.info(f"stash {here_directory}")
@@ -89,8 +89,7 @@ def release_process():
     # get the latest tag
     os.chdir(GIT_DIR)
     # stash current changes with message 'pre-release changes'
-    run_command(
-        f"git stash push -m 'pre-release changes {new_release_branch}'")
+    run_command(f"git stash push -m 'pre-release changes {new_release_branch}'")
     #  switch main
     run_command("git switch main")
     # pull latest changes
@@ -102,8 +101,7 @@ def release_process():
     #  push branch to origin
     run_command(f"git push origin {new_release_branch} --no-verify")
     # add the new tag
-    run_command(
-        f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
+    run_command(f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
     # push the new tag
     run_command(f"git push origin {new_tag} --no-verify")
     # switch back to the main branch
@@ -113,6 +111,7 @@ def release_process():
 def get_branches_as_choice_list():
     # Run the git branch command
     branches = get_branch_info(GIT_DIR)
+    logger.debug(f"GIT_DIR: {GIT_DIR}")
     # sort branches by youngest first
     # branches.sort(key=lambda branch: branch.age, reverse=True)
     branches.sort(key=lambda branch: branch.age_number)
@@ -175,14 +174,12 @@ def main(action, directory, here_directory, branch_name):
     if answers["action"] == CHECKOUT_BRANCH:
         branch_name = prompt_fzf_git_branches(branch_name=branch_name)
         if directory == "":
-            directory = prompt_fzf_directory(
-                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+            directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_checkout_branch(branch_name, directory, here_directory)
     elif answers["action"] == ADD_WORKTREE:
         branch_name = prompt_fzf_git_branches(branch_name=branch_name)
         if directory == "":
-            directory = prompt_fzf_directory(
-                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+            directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_worktree_add(branch_name, directory)
     elif answers["action"] == RELEASE_PROCESS:
         release_process()

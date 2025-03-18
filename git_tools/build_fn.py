@@ -1,7 +1,9 @@
-
 import os
 
 from utils import run_command
+from logger.logger import Logger
+
+logger = Logger("build_fn").logger
 
 
 def default_build_function(directory: str):
@@ -44,18 +46,32 @@ def empo_build_function(directory: str, git_dir: str):
     print(os.getcwd(), directory)
     print("=" * 99)
     os.chdir(directory)
+
+    # Start editor
+    run_command("windsurf .")
+
+    # Copy envs
+    commands = [
+        "echo 'copying envs';",
+        f"cp {git_dir}/../env/.env.server {directory}/sources/server/.env;",
+        f"cp {git_dir}/../env/.env.app {directory}/sources/app/.env;",
+    ]
+    for command in commands:
+        run_command(command)
+
+    # Install packages
     if not os.path.exists("yarn.lock"):
         print("[build_fn] empo_build] no yarn.lock")
         return
 
-    commands = [
-        "windsurf .;",
-        "echo 'copying envs';",
-        f"cp {git_dir}/sources/server/.env {directory}/sources/server;",
-        f"cp {git_dir}/sources/app/.env {directory}/sources/app;"
+    install_commands = [
         "corepack enable;",
-        "echo 'node: $(node --version) \nyarn: $(yarn --version)';"
-        "yarn install --ignore-engine; cd sources/server; yarn add sharp --ignore-engines; cd ../.."
+        "yarn set version 1.22.21;",
+        "echo 'node: $(node --version)';",
+        "echo 'yarn: $(yarn --version)';",
+        "yarn install --ignore-engine;cd sources/server;",
+        "yarn add sharp --ignore-engines;",
+        "cd ../..",
     ]
-    for command in commands:
-        run_command(command, is_verbose=True)
+    for command in install_commands:
+        run_command(command)
