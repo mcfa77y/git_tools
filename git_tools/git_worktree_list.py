@@ -23,6 +23,9 @@ from git_tool_constants import (
 )
 from utils import prompt_fzf_directory
 from worktree_jl import create_choices_for_worktrees
+from logger.logger import Logger
+
+logger = Logger("git_worktree_list").logger
 
 
 @click.command()

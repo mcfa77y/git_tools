@@ -60,18 +60,15 @@ def empo_build_function(directory: str, git_dir: str):
         run_command(command)
 
     # Install packages
-    if not os.path.exists("yarn.lock"):
-        print("[build_fn] empo_build] no yarn.lock")
-        return
-
     install_commands = [
         "corepack enable;",
         "yarn set version 1.22.21;",
-        "echo 'node: $(node --version)';",
-        "echo 'yarn: $(yarn --version)';",
-        "yarn install --ignore-engine;cd sources/server;",
-        "yarn add sharp --ignore-engines;",
-        "cd ../..",
+        "echo 'node:'",
+        "node --version;",
+        "echo 'yarn:'",
+        "yarn --version;",
+        "yarn install --ignore-engine;",
+        "cd sources/server; yarn add sharp --ignore-engines;",
     ]
     for command in install_commands:
         run_command(command)
