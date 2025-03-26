@@ -6,6 +6,7 @@ from build_fn import empo_build_function, neatleaf_build
 
 NEATLEAF_PROFILE = "NEATLEAF"
 EMPO_PROFILE = "EMPO"
+QC_PROFILE = "QC"
 
 PROFILE_NAME = EMPO_PROFILE
 
