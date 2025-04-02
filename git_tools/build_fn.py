@@ -59,6 +59,9 @@ def empo_build_function(directory: str, git_dir: str):
     for command in commands:
         run_command(command)
 
+    # Copy vscode launch.json
+    run_command(f"cp {git_dir}/../env/vscode/launch.json {directory}/.vscode/")
+
     # Install packages
     install_commands = [
         "corepack enable;",

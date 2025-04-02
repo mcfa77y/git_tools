@@ -3,6 +3,7 @@
 # dependencies = [
 #     "alive-progress",
 #     "click",
+#     "loguru",
 #     "inquirerpy",
 # ]
 # ///
@@ -23,9 +24,9 @@ def remove_working_tree(tree_path):
 
 
 @click.command()
-@click.option("--directory",
-              default=".",
-              help="Directory to execute the git command in")
+@click.option(
+    "--directory", default=".", help="Directory to execute the git command in"
+)
 def main(directory):
     """
     Allows user to interactively select a working tree to remove.
