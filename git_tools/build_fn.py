@@ -54,7 +54,7 @@ def print_banner(title: str, message: str):
 
 def empo_build_function(dest_dir: str, git_dir: str):
     title = "Empo Build"
-    message = f"{os.getcwd()} {dest_dir}"
+    message = f"{dest_dir}"
     print_banner(title, message)
     os.chdir(dest_dir)
 
