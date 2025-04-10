@@ -41,26 +41,43 @@ def neatleaf_build(directory: str, git_dir: str):
     default_build_function(directory)
 
 
-def empo_build_function(directory: str, git_dir: str):
-    print("=" * 40, "empo_build", "=" * 40)
-    print(os.getcwd(), directory)
-    print("=" * 99)
-    os.chdir(directory)
+def print_banner(title: str, message: str):
+    message_length = len(message)
+    title_length = len(title)
+    diff_length = message_length - title_length
+    decorator_count = diff_length // 2
+
+    print("=" * decorator_count, title, "=" * decorator_count)
+    print(message)
+    print("=" * decorator_count)
+
+
+def empo_build_function(dest_dir: str, git_dir: str):
+    title = "Empo Build"
+    message = f"{os.getcwd()} {dest_dir}"
+    print_banner(title, message)
+    os.chdir(dest_dir)
 
     # Start editor
     run_command("windsurf .")
 
-    # Copy envs
+    # Create symbolic links for envs
+    ENV_DIR = f"{git_dir}/../env"
     commands = [
-        "echo 'copying envs';",
-        f"cp {git_dir}/../env/.env.server {directory}/sources/server/.env;",
-        f"cp {git_dir}/../env/.env.app {directory}/sources/app/.env;",
+        "echo 'creating symbolic links for envs';",
+        f"ln -sf {ENV_DIR}/.env.server {dest_dir}/sources/server/.env;",
+        f"ln -sf {ENV_DIR}/.env.app {dest_dir}/sources/app/.env;",
     ]
     for command in commands:
         run_command(command)
 
-    # Copy vscode launch.json
-    run_command(f"cp {git_dir}/../env/vscode/launch.json {directory}/.vscode/")
+    # Create symbolic link for vscode files
+    commands = [
+        f"ln -sf {ENV_DIR}/vscode/launch.json {dest_dir}/.vscode/"
+        f"ln -sf {ENV_DIR}/vscode/tasks.json {dest_dir}/.vscode/"
+    ]
+    for command in commands:
+        run_command(command)
 
     # Install packages
     install_commands = [
@@ -71,7 +88,7 @@ def empo_build_function(directory: str, git_dir: str):
         "echo 'yarn:'",
         "yarn --version;",
         "yarn install --ignore-engine;",
-        "cd sources/server; yarn add sharp --ignore-engines;",
+        "cd sources/server; yarn add sharp@0.33.5 --ignore-engines;",
     ]
     for command in install_commands:
         run_command(command)
