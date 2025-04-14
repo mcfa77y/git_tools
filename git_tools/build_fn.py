@@ -1,6 +1,6 @@
 import os
 
-from utils import run_command
+from utils import run_command, run_commands
 from logger.logger import Logger
 
 logger = Logger("build_fn").logger
@@ -46,10 +46,12 @@ def print_banner(title: str, message: str):
     title_length = len(title)
     diff_length = message_length - title_length
     decorator_count = diff_length // 2
+    bottom_decorator_count = diff_length + title_length + 2
 
+    print("\n")
     print("=" * decorator_count, title, "=" * decorator_count)
     print(message)
-    print("=" * decorator_count)
+    print("=" * bottom_decorator_count)
 
 
 def empo_build_function(dest_dir: str, git_dir: str):
@@ -59,25 +61,23 @@ def empo_build_function(dest_dir: str, git_dir: str):
     os.chdir(dest_dir)
 
     # Start editor
-    run_command("windsurf .")
+    start_editor = [
+        "windsurf .;",
+        "~/.bun/bin/bun run /Users/joe/Projects/js_for_fun/apply_vs_code_theme/index.ts;",
+    ]
+    run_commands(start_editor)
 
     # Create symbolic links for envs
     ENV_DIR = f"{git_dir}/../env"
-    commands = [
+    create_symbolic_links = [
         "echo 'creating symbolic links for envs';",
         f"ln -sf {ENV_DIR}/.env.server {dest_dir}/sources/server/.env;",
         f"ln -sf {ENV_DIR}/.env.app {dest_dir}/sources/app/.env;",
+        "echo 'creating symbolic links for vscode';"
+        f"ln -sf {ENV_DIR}/vscode/launch.json {dest_dir}/.vscode/;",
+        f"ln -sf {ENV_DIR}/vscode/tasks.json {dest_dir}/.vscode/;",
     ]
-    for command in commands:
-        run_command(command)
-
-    # Create symbolic link for vscode files
-    commands = [
-        f"ln -sf {ENV_DIR}/vscode/launch.json {dest_dir}/.vscode/"
-        f"ln -sf {ENV_DIR}/vscode/tasks.json {dest_dir}/.vscode/"
-    ]
-    for command in commands:
-        run_command(command)
+    run_commands(create_symbolic_links)
 
     # Install packages
     install_commands = [
@@ -90,5 +90,4 @@ def empo_build_function(dest_dir: str, git_dir: str):
         "yarn install --ignore-engine;",
         "cd sources/server; yarn add sharp@0.33.5 --ignore-engines;",
     ]
-    for command in install_commands:
-        run_command(command)
+    run_commands(install_commands)

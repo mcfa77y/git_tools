@@ -1,8 +1,14 @@
 import subprocess
+from typing import List
 from InquirerPy import inquirer
 from logger.logger import Logger
 
 logger = Logger("utils").logger
+
+
+def run_commands(commands: List[str]):
+    for command in commands:
+        run_command(command)
 
 
 def run_command(command):

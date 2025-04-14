@@ -123,8 +123,19 @@ def get_branches_as_choice_list():
     return choices
 
 
-def prompt_fzf_git_branches(branch_name: str = "") -> str:
+def prompt_fzf_git_branches(branch_name: str = "", auto_select: bool = False) -> str:
     choices = get_branches_as_choice_list()
+
+    matches = []
+    for choice in choices:
+        if branch_name in choice.value:
+            logger.debug(f"match found: {choice.value}")
+            matches.append(choice.value)
+    logger.debug(f"matches: {len(matches)}")
+
+    if auto_select and len(matches) == 1:
+        return matches[0]
+
     # Use inquirer to let the user select a branch
     selected_branch: str = inquirer.fuzzy(
         message="Select a branch", default=branch_name, choices=choices
@@ -171,17 +182,17 @@ def main(action, directory, here_directory, branch_name):
         )
     else:
         answers = {"action": action}
-    if answers["action"] == CHECKOUT_BRANCH:
-        branch_name = prompt_fzf_git_branches(branch_name=branch_name)
+    if CHECKOUT_BRANCH == answers["action"]:
+        branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
         if directory == "":
             directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_checkout_branch(branch_name, directory, here_directory)
-    elif answers["action"] == ADD_WORKTREE:
-        branch_name = prompt_fzf_git_branches(branch_name=branch_name)
+    elif ADD_WORKTREE == answers["action"]:
+        branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
         if directory == "":
             directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_worktree_add(branch_name, directory)
-    elif answers["action"] == RELEASE_PROCESS:
+    elif RELEASE_PROCESS == answers["action"]:
         release_process()
 
 
