@@ -23,15 +23,13 @@ def default_build_function(directory: str):
         return
     if os.path.exists("bun.lock") or os.path.exists("bun.lockb"):
         run_command("bun install")
-        return
+
 
 
 def copy_husky_dir(git_dir: str):
     os.makedirs(".husky/_", exist_ok=True)
     print("[build_fn] copy husky dir")
     run_command(f"cp {git_dir}/.husky/_/husky.sh .husky/_/")
-    # print("[worktree add] create .git dir")
-    # os.makedirs(".git", exist_ok=True)
 
 
 def neatleaf_build(directory: str, git_dir: str):
@@ -76,18 +74,22 @@ def empo_build_function(dest_dir: str, git_dir: str):
         "echo 'creating symbolic links for vscode';"
         f"ln -sf {ENV_DIR}/vscode/launch.json {dest_dir}/.vscode/;",
         f"ln -sf {ENV_DIR}/vscode/tasks.json {dest_dir}/.vscode/;",
+        "echo 'creating symbolic links for terraform';"
+        f"ln -sf {ENV_DIR}/terraform/.envrc.stacks.production {dest_dir}/infrastructure/stacks/production/.envrc;",
+        f"ln -sf {ENV_DIR}/terraform/.envrc.stacks.staging {dest_dir}/infrastructure/stacks/staging/.envrc;",
     ]
     run_commands(create_symbolic_links)
 
     # Install packages
     install_commands = [
+        "bash --command $HOME/.nvm/nvm.sh;",
+        "nvm use 22;",
         "corepack enable;",
-        "yarn set version 1.22.21;",
+        "yarn set version 4.7.0;",
         "echo 'node:'",
         "node --version;",
         "echo 'yarn:'",
         "yarn --version;",
-        "yarn install --ignore-engine;",
-        "cd sources/server; yarn add sharp@0.33.5 --ignore-engines;",
+        "yarn install;",
     ]
     run_commands(install_commands)

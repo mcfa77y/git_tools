@@ -20,6 +20,7 @@ def run_command(command):
 
 
 def prompt_fzf_directory(dir_choices, root_dir, default_choice="") -> str:
+    logger.debug(f"dir_choices: {dir_choices}")
     if len(dir_choices) == 1 and dir_choices[0].name == root_dir:
         return ""
 

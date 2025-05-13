@@ -19,6 +19,16 @@ from logger.logger import Logger
 
 logger = Logger("git_worktree_and_branches").logger
 
+def create_new_branch(branch_name, directory):
+    logger.info(f"create new branch {branch_name}")
+    run_command(f"cd {GIT_DIR}")
+    run_command(f"git stash push -m 'stash changes while creating new branch {branch_name}'")
+    run_command("git pull")
+    run_command(f"git checkout -b {branch_name}")
+    run_command("git push origin --no-verify")
+    run_command("git switch -")
+    run_command("git stash pop")
+    common_worktree_add(branch_name, directory)
 
 def common_checkout_branch(branch_name, directory, here_directory):
     logger.info(f"stash {here_directory}")
@@ -188,9 +198,15 @@ def main(action, directory, here_directory, branch_name):
             directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_checkout_branch(branch_name, directory, here_directory)
     elif ADD_WORKTREE == answers["action"]:
+        original_branch_name = branch_name
         branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
         if directory == "":
             directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+        logger.info(f"[worktree add] branch_name: {branch_name}, directory: {directory}")
+        if branch_name == None and directory == "":
+            # create a new branch 
+            create_new_branch(original_branch_name, directory)
+            return
         common_worktree_add(branch_name, directory)
     elif RELEASE_PROCESS == answers["action"]:
         release_process()
