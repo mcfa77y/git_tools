@@ -1,10 +1,9 @@
 import subprocess
 from typing import List
 from InquirerPy import inquirer
-from logger.logger import Logger
+from logger.logger import Logger, LogLevel
 
-logger = Logger("utils").logger
-
+logger = Logger("utils", LogLevel.ERROR).logger
 
 def run_commands(commands: List[str]):
     for command in commands:

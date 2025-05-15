@@ -9,7 +9,7 @@
     "/Users/joe/Library/Application Support/Code/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20231128/adafruit-circuitpython-bundle-py-20231128/lib"
   ],
   "circuitpython.board.version": null,
-  "workbench.colorTheme": "Abyss",
+  "workbench.colorTheme": "Cobalt2",
   "pylint.args": [
     "--max-line-length=120",
     "--disable=C0111"

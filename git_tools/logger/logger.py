@@ -23,7 +23,7 @@ class Logger:
         """
         self.name = name
         self.level = level.value if isinstance(level, LogLevel) else level.upper()
-        self.logger = logger.bind(name=name)
+        self.logger = logger.bind(name=name).level(self.level)
 
     def create_child(
         self, child_name: str, level: Optional[Union[LogLevel, str]] = None

@@ -11,7 +11,7 @@ build-backend = "pdm.backend"
 authors = [
     {name = "Joe Lau", email = "lau.joe.a@gmail.com"},
 ]
-requires-python = "<4.0,>=3.11"
+requires-python = "<4.0,>=3.13"
 dependencies = [
     "pretty-errors<2.0.0,>=1.2.25",
     "click<9.0.0,>=8.1.7",
