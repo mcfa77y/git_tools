@@ -48,7 +48,6 @@ def run_git_command(
         return result.strip()
     except subprocess.CalledProcessError as e:
         click.echo(f"Command failed with error code {e.returncode}")
-        return None
 
 
 @click.command()
@@ -70,9 +69,6 @@ def get_stale_branches(threshold_days, directory):
     - directory (str): Directory to execute the git command in
     """
     print(f"Getting stale branches older than {threshold_days} days")
-
-    # Fetch the latest data about all remote branches
-    run_git_command(["git", "fetch"], directory)
 
     # Filter branches based on the threshold date, calculate their age, and get the author
     branch_info_list = get_branch_info(directory, merged_to_main=True)
@@ -181,7 +177,10 @@ def delete_branch(branch: BranchInfoJL, directory):
         )
     else:
         # Delete the local branch
-        run_git_command(["git", "branch", "-D", branch.name], directory)
+        run_git_command(["git", "branch", "--delete", branch.name], directory)
+        run_git_command(
+            ["git", "branch", "--delete", "--remote", branch.name], directory
+        )
 
 
 def delete_branches(directory: str, branch_info_list: List[BranchInfoJL]):

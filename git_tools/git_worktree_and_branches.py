@@ -13,22 +13,26 @@ from InquirerPy import inquirer, prompt
 from InquirerPy.base.control import Choice
 
 from branch_info_jl import format_branch_info_names, get_branch_info
-from git_tool_constants import BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR, WORKTREE_DIR
+from git_tool_constants import (BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR,
+                                WORKTREE_DIR)
+from logger.logger import Logger, LogLevel
 from utils import prompt_fzf_directory, run_command
-from logger.logger import Logger
 
-logger = Logger("git_worktree_and_branches").logger
+logger = Logger("git_worktree_and_branches", LogLevel.WARNING).logger_jl
+
 
 def create_new_branch(branch_name, directory):
     logger.info(f"create new branch {branch_name}")
     run_command(f"cd {GIT_DIR}")
-    run_command(f"git stash push -m 'stash changes while creating new branch {branch_name}'")
+    run_command(
+        f"git stash push -m 'stash changes while creating new branch {branch_name}'")
     run_command("git pull")
     run_command(f"git checkout -b {branch_name}")
     run_command("git push origin --no-verify")
     run_command("git switch -")
     run_command("git stash pop")
     common_worktree_add(branch_name, directory)
+
 
 def common_checkout_branch(branch_name, directory, here_directory):
     logger.info(f"stash {here_directory}")
@@ -51,7 +55,8 @@ def common_worktree_add(branch_name, directory):
     try:
         run_command(f"git worktree add {new_worktree_dir} {new_branch_name}")
     except Exception as e:
-        logger.error(f"[worktree add] Exception while running git worktree add {e}")
+        logger.error(
+            f"[worktree add] Exception while running git worktree add {e}")
 
     if "root" in directory:
         BUILD_FN(directory, git_dir=GIT_DIR)
@@ -99,7 +104,8 @@ def release_process():
     # get the latest tag
     os.chdir(GIT_DIR)
     # stash current changes with message 'pre-release changes'
-    run_command(f"git stash push -m 'pre-release changes {new_release_branch}'")
+    run_command(
+        f"git stash push -m 'pre-release changes {new_release_branch}'")
     #  switch main
     run_command("git switch main")
     # pull latest changes
@@ -111,7 +117,8 @@ def release_process():
     #  push branch to origin
     run_command(f"git push origin {new_release_branch} --no-verify")
     # add the new tag
-    run_command(f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
+    run_command(
+        f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
     # push the new tag
     run_command(f"git push origin {new_tag} --no-verify")
     # switch back to the main branch
@@ -193,18 +200,23 @@ def main(action, directory, here_directory, branch_name):
     else:
         answers = {"action": action}
     if CHECKOUT_BRANCH == answers["action"]:
-        branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
+        branch_name = prompt_fzf_git_branches(
+            branch_name=branch_name, auto_select=True)
         if directory == "":
-            directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+            directory = prompt_fzf_directory(
+                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_checkout_branch(branch_name, directory, here_directory)
     elif ADD_WORKTREE == answers["action"]:
         original_branch_name = branch_name
-        branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
+        branch_name = prompt_fzf_git_branches(
+            branch_name=branch_name, auto_select=True)
         if directory == "":
-            directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
-        logger.info(f"[worktree add] branch_name: {branch_name}, directory: {directory}")
+            directory = prompt_fzf_directory(
+                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+        logger.info(
+            f"[worktree add] branch_name: {branch_name}, directory: {directory}")
         if branch_name == None and directory == "":
-            # create a new branch 
+            # create a new branch
             create_new_branch(original_branch_name, directory)
             return
         common_worktree_add(branch_name, directory)

@@ -1,6 +1,8 @@
-from loguru import logger
+import sys
 from enum import Enum
 from typing import Optional, Union
+
+from loguru import logger
 
 
 class LogLevel(Enum):
@@ -22,8 +24,11 @@ class Logger:
             level: The logging level (default: LogLevel.INFO)
         """
         self.name = name
-        self.level = level.value if isinstance(level, LogLevel) else level.upper()
-        self.logger = logger.bind(name=name).level(self.level)
+        self.level = level.value if isinstance(
+            level, LogLevel) else level.upper()
+        logger.remove()
+        logger.add(sys.stdout, level=self.level)
+        self.logger_jl = logger
 
     def create_child(
         self, child_name: str, level: Optional[Union[LogLevel, str]] = None
@@ -39,4 +44,3 @@ class Logger:
         """
         full_name = f"{self.name}.{child_name}"
         return Logger(full_name, level or self.level)
-

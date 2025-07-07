@@ -4,7 +4,9 @@ from typing import List
 
 from git_tool_constants import IS_VERBOSE
 from utils import run_command
+from logger.logger import Logger, LogLevel
 
+logger = Logger("branch_info_jl", LogLevel.DEBUG).logger_jl
 
 @dataclass
 class BranchInfoJL:
@@ -12,6 +14,7 @@ class BranchInfoJL:
     date: datetime = field(init=False)
     date_string: str
     author: str
+    track: str = field(init=True)
     info: str = field(init=False)
     is_origin: bool = field(init=False)
 
@@ -26,20 +29,30 @@ class BranchInfoJL:
             None
         """
         try:
-            parts = string.split()
+            parts = string.split("||")
             self.date_string = parts[0]
             self.name = parts[1]
             self.author = parts[2]
+            if parts[3] is None:
+                self.track = ""
+            else:
+                self.track = parts[3]
             self.__post_init__()
         except IndexError as e:
             if IS_VERBOSE:
-                print(f"[branch_info_jl] {e} - line: {string}")
+                logger.warning(f"[branch_info_jl] {e} - line: {string}")
+        except ValueError as e:
+            if IS_VERBOSE:
+                logger.warning(f"[branch_info_jl] {e} - line: {string}")
 
     def __post_init__(self):
         self.name = self.name.strip()
         self.author = self.author.strip()
+        self.date_string = self.date_string.strip()
+        self.track = self.track.strip()
+
         self.date = datetime.strptime(self.date_string, "%Y-%m-%d")
-        self.info = f"{self.name} || {self.author} || {self.age}"
+        self.info = f"{self.name} || {self.author} || {self.age} || {self.track}"
         if self.name.startswith("origin/"):
             self.is_origin = True
             self.name = self.name.replace("origin/", "*")
@@ -83,8 +96,9 @@ def get_branch_info(directory: str, merged_to_main: bool = False) -> List[Branch
         "git",
         "for-each-ref",
         "--sort=committerdate",
-        "--format='%(committerdate:short) %(refname:short) %(authorname)'",
+        "--format='%(committerdate:short) || %(refname:short) || %(authorname) || %(upstream:track)'",
     ]
+
     if merged_to_main:
         cmd.append("--merged=main")
 
@@ -99,7 +113,9 @@ def get_branch_info(directory: str, merged_to_main: bool = False) -> List[Branch
         if not line:
             continue
         try:
-            branch_info = BranchInfoJL("", "1970-01-01", "")
+            branch_info = BranchInfoJL(
+                name="", date_string="1970-01-01", author="", track=""
+            )
             branch_info.parse(line)
             branch_info_list.append(branch_info)
         except IndexError:
@@ -127,20 +143,16 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
     """
     # find the longest worktree name
     maximum_branch_name_length = 400
-    longest_name_length = max(len(branchInfo.name)
-                              for branchInfo in branch_infos)
+    longest_name_length = max(len(branchInfo.name) for branchInfo in branch_infos)
     longest_name_length = min(longest_name_length, maximum_branch_name_length)
 
     maximum_author_name_length = 20
-    longest_author_length = max(len(branchInfo.author)
-                                for branchInfo in branch_infos)
-    longest_author_length = min(
-        longest_author_length, maximum_author_name_length)
+    longest_author_length = max(len(branchInfo.author) for branchInfo in branch_infos)
+    longest_author_length = min(longest_author_length, maximum_author_name_length)
 
     # make all worktree names the same length
     for branch_info in branch_infos:
-        name_short = branch_info.name.replace(
-            "origin/", "*")[0:longest_name_length]
+        name_short = branch_info.name.replace("origin/", "*")[0:longest_name_length]
         branch_info.name = branch_info.name.removeprefix("origin/")
         branch_info.info = (
             name_short.ljust(longest_name_length)
@@ -148,4 +160,6 @@ def format_branch_info_names(branch_infos: List[BranchInfoJL]):
             + branch_info.author.ljust(longest_author_length)
             + " || "
             + branch_info.age
+            + " || "
+            + branch_info.track
         )

@@ -1,9 +1,9 @@
 import os
 
-from utils import run_command, run_commands
 from logger.logger import Logger
+from utils import run_command, run_commands
 
-logger = Logger("build_fn").logger
+logger = Logger("build_fn").logger_jl
 
 
 def default_build_function(directory: str):
@@ -23,7 +23,6 @@ def default_build_function(directory: str):
         return
     if os.path.exists("bun.lock") or os.path.exists("bun.lockb"):
         run_command("bun install")
-
 
 
 def copy_husky_dir(git_dir: str):
@@ -66,17 +65,17 @@ def empo_build_function(dest_dir: str, git_dir: str):
     run_commands(start_editor)
 
     # Create symbolic links for envs
-    ENV_DIR = f"{git_dir}/../env"
+    env_dir = f"{git_dir}/../env"
     create_symbolic_links = [
         "echo 'creating symbolic links for envs';",
-        f"ln -sf {ENV_DIR}/.env.server {dest_dir}/sources/server/.env;",
-        f"ln -sf {ENV_DIR}/.env.app {dest_dir}/sources/app/.env;",
+        f"ln -sf {env_dir}/.env.server {dest_dir}/sources/server/.env;",
+        f"ln -sf {env_dir}/.env.app {dest_dir}/sources/app/.env;",
         "echo 'creating symbolic links for vscode';"
-        f"ln -sf {ENV_DIR}/vscode/launch.json {dest_dir}/.vscode/;",
-        f"ln -sf {ENV_DIR}/vscode/tasks.json {dest_dir}/.vscode/;",
-        "echo 'creating symbolic links for terraform';"
-        f"ln -sf {ENV_DIR}/terraform/.envrc.stacks.production {dest_dir}/infrastructure/stacks/production/.envrc;",
-        f"ln -sf {ENV_DIR}/terraform/.envrc.stacks.staging {dest_dir}/infrastructure/stacks/staging/.envrc;",
+        f"ln -sf {env_dir}/vscode/launch.json {dest_dir}/.vscode/;",
+        f"ln -sf {env_dir}/vscode/tasks.json {dest_dir}/.vscode/;",
+        # "echo 'creating symbolic links for terraform';"
+        # f"ln -sf {env_dir}/terraform/.envrc.stacks.production {dest_dir}/infrastructure/stacks/production/.envrc;",
+        # f"ln -sf {env_dir}/terraform/.envrc.stacks.staging {dest_dir}/infrastructure/stacks/staging/.envrc;",
     ]
     run_commands(create_symbolic_links)
 
@@ -84,10 +83,8 @@ def empo_build_function(dest_dir: str, git_dir: str):
     install_commands = [
         "source $HOME/.nvm/nvm.sh && nvm use 22 && corepack enable",
         "yarn set version 4.7.0",
-        "echo 'node:'",
-        "node --version",
-        "echo 'yarn:'",
-     "yarn --version",
-     "yarn install",
- ]
+        'echo "node: $(node --version)"',
+        'echo "yarn: $(yarn --version)"',
+        "yarn install",
+    ]
     run_commands(install_commands)
