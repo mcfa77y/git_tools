@@ -58,8 +58,10 @@ def empo_build_function(dest_dir: str, git_dir: str):
     os.chdir(dest_dir)
 
     # Start editor
+    # editor = "cursor"
+    editor = "code"
     start_editor = [
-        "windsurf .;",
+        f"{editor} .;",
         "~/.bun/bin/bun run /Users/joe/Projects/js_for_fun/apply_vs_code_theme/index.ts;",
     ]
     run_commands(start_editor)
