@@ -52,14 +52,10 @@ def main(directory):
     ).execute()
 
     if confirm:
-        with ThreadPoolExecutor() as executor:
-            tasks = [
-                executor.submit(remove_working_tree, tree_choice)
-                for tree_choice in selected_trees
-            ]
-            with alive_bar(len(tasks)) as update_progress_bar:
-                for _ in as_completed(tasks):
-                    update_progress_bar()
+        with alive_bar(len(selected_trees)) as update_progress_bar:
+            for tree_choice in selected_trees:
+                remove_working_tree(tree_choice)
+                update_progress_bar()
     else:
         print("Aborted!")
 

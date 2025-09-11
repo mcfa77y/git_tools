@@ -59,19 +59,20 @@ def empo_build_function(dest_dir: str, git_dir: str):
 
     # Start editor
     # editor = "cursor"
-    editor = "code"
+    editor = "windsurf"
     start_editor = [
         f"{editor} .;",
         "~/.bun/bin/bun run /Users/joe/Projects/js_for_fun/apply_vs_code_theme/index.ts;",
     ]
     run_commands(start_editor)
-
     # Create symbolic links for envs
     env_dir = f"{git_dir}/../env"
     create_symbolic_links = [
         "echo 'creating symbolic links for envs';",
-        f"ln -sf {env_dir}/.env.server {dest_dir}/sources/server/.env;",
-        f"ln -sf {env_dir}/.env.app {dest_dir}/sources/app/.env;",
+        f"ln -sf {env_dir}/.env.server {dest_dir}/modules/backend-api/.env;",
+        f"ln -sf {env_dir}/.env.app {dest_dir}/modules/frontend-app/.env;",
+        f"ln -sf {env_dir}/.env.qa {dest_dir}/modules/qa/.env;",
+        f"ln -sf {env_dir}/.env.rhl-api-tools {dest_dir}/modules/helper-scripts/rhl-api-tools/.env;",
         "echo 'creating symbolic links for vscode';"
         f"ln -sf {env_dir}/vscode/launch.json {dest_dir}/.vscode/;",
         f"ln -sf {env_dir}/vscode/tasks.json {dest_dir}/.vscode/;",

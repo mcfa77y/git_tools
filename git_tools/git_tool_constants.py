@@ -71,5 +71,5 @@ DIR_OPTIONS = PROFILE["DIR_OPTIONS"]
 BUILD_FN: Callable[[str, str], None] = PROFILE["BUILD_FN"]
 PROFILE_DEFAULT_DIR = PROFILE["DEFAULT_DIR"]
 # IS_VERBOSE = False
-IS_VERBOSE = True
+IS_VERBOSE = False
 DIR_CHOICES = [Choice(value=dir, name=dir) for dir in DIR_OPTIONS]

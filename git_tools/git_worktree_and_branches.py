@@ -9,23 +9,24 @@
 import os
 
 import click
-from InquirerPy import inquirer, prompt
-from InquirerPy.base.control import Choice
-
 from branch_info_jl import format_branch_info_names, get_branch_info
-from git_tool_constants import (BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR,
-                                WORKTREE_DIR)
+from git_tool_constants import BUILD_FN, DIR_CHOICES, GIT_DIR, ROOT_DIR, WORKTREE_DIR
+from InquirerPy import inquirer
+from InquirerPy.resolver import prompt
+from InquirerPy.base.control import Choice
 from logger.logger import Logger, LogLevel
 from utils import prompt_fzf_directory, run_command
 
-logger = Logger("git_worktree_and_branches", LogLevel.WARNING).logger_jl
+logger = Logger("git_worktree_and_branches", LogLevel.DEBUG).logger_jl
 
 
 def create_new_branch(branch_name, directory):
     logger.info(f"create new branch {branch_name}")
     run_command(f"cd {GIT_DIR}")
     run_command(
-        f"git stash push -m 'stash changes while creating new branch {branch_name}'")
+        f"git stash push -m 'stash changes while creating new branch {branch_name}'"
+    )
+    run_command("git checkout main")
     run_command("git pull")
     run_command(f"git checkout -b {branch_name}")
     run_command("git push origin --no-verify")
@@ -35,33 +36,32 @@ def create_new_branch(branch_name, directory):
 
 
 def common_checkout_branch(branch_name, directory, here_directory):
-    logger.info(f"stash {here_directory}")
+    logger.info(f"git stash {here_directory}")
     run_command(f"cd {here_directory}; git stash push")
     logger.info(f"switch {branch_name}")
     run_command(f"git switch {branch_name}")
-    logger.info("stash pop")
+    logger.info("git stash pop")
     run_command("git stash pop")
-    BUILD_FN(directory, git_dir=GIT_DIR)
+    BUILD_FN(directory, GIT_DIR)
 
 
 def common_worktree_add(branch_name, directory):
     new_branch_name = branch_name.replace("*", "")
     new_worktree_dir = f"{WORKTREE_DIR}/{new_branch_name}"
-    logger.info(f"[worktree add] git worktree add {new_worktree_dir}")
+    logger.info(f"[common_worktree_add] git worktree add {new_worktree_dir}")
     if os.path.exists(new_worktree_dir):
-        logger.info("[worktree add] worktree already exists")
-        BUILD_FN(new_worktree_dir, git_dir=GIT_DIR)
+        logger.info("[common_worktree_add] worktree already exists")
+        BUILD_FN(new_worktree_dir, GIT_DIR)
         return
     try:
         run_command(f"git worktree add {new_worktree_dir} {new_branch_name}")
     except Exception as e:
-        logger.error(
-            f"[worktree add] Exception while running git worktree add {e}")
+        logger.error(f"[worktree add] Exception while running git worktree add {e}")
 
     if "root" in directory:
-        BUILD_FN(directory, git_dir=GIT_DIR)
+        BUILD_FN(directory, GIT_DIR)
     else:
-        BUILD_FN(new_worktree_dir, git_dir=GIT_DIR)
+        BUILD_FN(new_worktree_dir, GIT_DIR)
 
 
 def update_version(version_string, update_type):
@@ -104,8 +104,7 @@ def release_process():
     # get the latest tag
     os.chdir(GIT_DIR)
     # stash current changes with message 'pre-release changes'
-    run_command(
-        f"git stash push -m 'pre-release changes {new_release_branch}'")
+    run_command(f"git stash push -m 'pre-release changes {new_release_branch}'")
     #  switch main
     run_command("git switch main")
     # pull latest changes
@@ -117,8 +116,7 @@ def release_process():
     #  push branch to origin
     run_command(f"git push origin {new_release_branch} --no-verify")
     # add the new tag
-    run_command(
-        f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
+    run_command(f"git tag --annotate --force {new_tag} --message 'creating {new_tag}'")
     # push the new tag
     run_command(f"git push origin {new_tag} --no-verify")
     # switch back to the main branch
@@ -200,22 +198,19 @@ def main(action, directory, here_directory, branch_name):
     else:
         answers = {"action": action}
     if CHECKOUT_BRANCH == answers["action"]:
-        branch_name = prompt_fzf_git_branches(
-            branch_name=branch_name, auto_select=True)
+        branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
         if directory == "":
-            directory = prompt_fzf_directory(
-                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+            directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         common_checkout_branch(branch_name, directory, here_directory)
     elif ADD_WORKTREE == answers["action"]:
         original_branch_name = branch_name
-        branch_name = prompt_fzf_git_branches(
-            branch_name=branch_name, auto_select=True)
+        branch_name = prompt_fzf_git_branches(branch_name=branch_name, auto_select=True)
         if directory == "":
-            directory = prompt_fzf_directory(
-                dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
+            directory = prompt_fzf_directory(dir_choices=DIR_CHOICES, root_dir=ROOT_DIR)
         logger.info(
-            f"[worktree add] branch_name: {branch_name}, directory: {directory}")
-        if branch_name == None and directory == "":
+            f"[worktree add] branch_name: {branch_name}, directory: {directory}"
+        )
+        if branch_name is None and directory == "":
             # create a new branch
             create_new_branch(original_branch_name, directory)
             return

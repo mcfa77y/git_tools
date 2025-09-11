@@ -1,0 +1,25 @@
+{
+  "include": [
+    "git_tools"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+  ],
+  "ignore": [
+    ".venv"
+  ],
+  "defineConstant": {
+    "DEBUG": true
+  },
+  "venv": ".venv",
+  "reportMissingImports": "error",
+  "reportMissingTypeStubs": false,
+  "pythonVersion": "3.6",
+  "pythonPlatform": "Linux",
+  "executionEnvironments": [
+    {
+      "root": "git_tools"
+    }
+  ]
+}
