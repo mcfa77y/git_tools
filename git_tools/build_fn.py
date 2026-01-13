@@ -84,7 +84,7 @@ def empo_build_function(dest_dir: str, git_dir: str):
 
     # Install packages
     install_commands = [
-        "source $HOME/.nvm/nvm.sh && nvm use 22 && corepack enable",
+        # "source $HOME/.nvm/nvm.sh && nvm use 22 && corepack enable",
         "yarn set version 4.7.0",
         'echo "node: $(node --version)"',
         'echo "yarn: $(yarn --version)"',
